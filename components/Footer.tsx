@@ -31,7 +31,7 @@ const Footer = () => {
         </div>
         <div className="mt-8 pt-8 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center">
           <p className="text-sm text-gray-400 mb-4 sm:mb-0">
-            &copy; {currentYear} Golden Dragon. All rights reserved.
+            &copy; {currentYear} LOCL. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a href="#" aria-label="Twitter">

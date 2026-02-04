@@ -84,7 +84,7 @@ export default function Home() {
         <div className="container mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">About Us</h2>
           <p className="max-w-3xl mx-auto text-gray-600">
-            The Golden Dragon has been serving authentic Chinese food to our community for over 20 years. We use only the freshest ingredients and traditional recipes to bring you a dining experience you won't forget.
+            The LOCL platform helps local businesses streamline their operations and connect with customers.
           </p>
         </div>
       </section>

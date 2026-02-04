@@ -14,7 +14,7 @@ export default function Comparison() {
           <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-zinc-900 dark:text-white leading-[0.95] tracking-tighter mb-8">
             Why Restaurants
             <br />
-            <GradientText>Choose OrderFlow</GradientText>
+            <GradientText>Choose LOCL</GradientText>
           </h1>
           
           <p className="text-xl sm:text-2xl text-zinc-700 dark:text-zinc-300 font-semibold max-w-3xl mx-auto leading-relaxed">
@@ -38,7 +38,7 @@ export default function Comparison() {
                 Uber Eats
               </div>
               <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-xl font-black text-zinc-900 dark:text-white border-2 border-indigo-200 dark:border-indigo-800">
-                OrderFlow
+                LOCL
               </div>
             </div>
 
@@ -252,7 +252,7 @@ export default function Comparison() {
             </div>
 
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800">
-              <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-4">OrderFlow</h3>
+              <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-4">LOCL</h3>
               <div className="text-4xl font-black text-emerald-600 mb-2">$1,428</div>
               <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
                 $299 setup + $99 × 12 months
@@ -276,7 +276,7 @@ export default function Comparison() {
       <section className="py-24 bg-zinc-50 dark:bg-zinc-900">
         <div className="container mx-auto px-4">
           <h2 className="text-5xl sm:text-6xl font-black text-zinc-900 dark:text-white mb-16 text-center">
-            Why Smart Restaurants <GradientText>Choose OrderFlow</GradientText>
+            Why Smart Restaurants <GradientText>Choose LOCL</GradientText>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -338,7 +338,7 @@ export default function Comparison() {
             Stop Losing 30% to Delivery Apps
           </h2>
           <p className="text-xl text-indigo-100 mb-12 max-w-2xl mx-auto">
-            See how OrderFlow works. Book a demo with one of our restaurant specialists.
+            See how LOCL works. Book a demo with one of our restaurant specialists.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
@@ -357,7 +357,6 @@ export default function Comparison() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

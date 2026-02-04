@@ -98,7 +98,7 @@ export default function ForConvenienceStores() {
 
             <div className="bg-white dark:bg-zinc-800 p-8 rounded-2xl border border-zinc-200 dark:border-zinc-700">
               <div className="text-5xl font-black text-emerald-600 mb-4">2.9%</div>
-              <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-4">With OrderFlow</h3>
+              <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-4">With LOCL</h3>
               <p className="text-zinc-600 dark:text-zinc-400 mb-6">
                 Same $50 order, but customers order directly via QR code:
               </p>
@@ -112,7 +112,7 @@ export default function ForConvenienceStores() {
                   <span className="font-bold">-$1.45</span>
                 </div>
                 <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                  <span>OrderFlow Platform</span>
+                  <span>LOCL Platform</span>
                   <span className="font-bold">$0.00</span>
                 </div>
                 <div className="border-t border-emerald-300 dark:border-emerald-700 pt-3 flex justify-between font-black">
@@ -355,7 +355,6 @@ export default function ForConvenienceStores() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
