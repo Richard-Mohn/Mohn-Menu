@@ -16,17 +16,12 @@
     }
   ],
   "hosting": {
-    "public": "out",
+    "public": "public",
+    "apphosting": "ordersystem",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
     ]
   },
   "firestore": {

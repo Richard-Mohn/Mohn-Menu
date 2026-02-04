@@ -43,10 +43,10 @@ const Header = () => {
   return (
     <motion.header
       className={cn(
-        'fixed top-0 left-0 right-0 z-[100] transition-all duration-500 border-b',
+        'fixed top-0 left-0 right-0 z-[100] transition-all duration-500 border-b bg-white',
         isScrolled
-          ? 'bg-white/80 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.02)] border-zinc-100 py-2'
-          : 'bg-white/50 backdrop-blur-sm border-transparent py-4'
+          ? 'shadow-[0_10px_40px_rgba(0,0,0,0.05)] border-zinc-100 py-2'
+          : 'border-transparent py-4'
       )}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
