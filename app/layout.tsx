@@ -11,8 +11,8 @@ import AnimatedBackground from "@/components/AnimatedBackground";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "OrderFlow | Mobile Ordering Platform",
-  description: "Simple, affordable mobile ordering for restaurants and food businesses. 50% lower fees than competitors.",
+  title: "LOCL | Mobile Ordering Platform",
+  description: "LOCL: Empowering local businesses with simple, affordable mobile ordering.",
 };
 
 export default function RootLayout({

@@ -30,7 +30,7 @@ export default function Home() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            OrderFlow
+            LOCL
           </motion.h1>
           <motion.p 
             className="text-lg md:text-xl text-gray-600 mb-8"

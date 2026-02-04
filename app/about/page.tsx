@@ -25,7 +25,7 @@ export default function About() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          The OrderFlow team is dedicated to empowering restaurants and food businesses.
+          The LOCL team is dedicated to empowering restaurants and food businesses.
         </motion.p>
       </motion.section>
 
@@ -35,7 +35,7 @@ export default function About() {
             <div>
               <h2 className="text-4xl font-bold mb-6">From Our Family to Yours</h2>
               <p className="text-gray-600 mb-4">
-                Founded by experienced restaurateurs, OrderFlow was born from a simple idea: to create a powerful, affordable ordering platform that puts business owners first. We understand the challenges of the food service industry because we've lived them.
+                Founded by experienced restaurateurs, LOCL was born from a simple idea: to create a powerful, affordable ordering platform that puts business owners first. We understand the challenges of the food service industry because we've lived them.
               </p>
               <p className="text-gray-600">
                 Our mission is to provide you with the tools to thrive in a competitive market, offering transparent pricing and robust features that empower you to connect directly with your customers.

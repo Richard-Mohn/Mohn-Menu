@@ -36,7 +36,7 @@ export default function ForRestaurants() {
             </h1>
             
             <p className="text-xl sm:text-2xl text-zinc-700 dark:text-zinc-300 font-semibold mb-12 max-w-3xl leading-relaxed">
-              The average restaurant pays DoorDash $598/month for 400 orders. OrderFlow? Just $47. Take back control of your delivery platform.
+              The average restaurant pays DoorDash $598/month for 400 orders. LOCL? Just $47. Take back control of your delivery platform.
             </p>
             
             <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-16">
@@ -132,7 +132,7 @@ export default function ForRestaurants() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-5xl sm:text-6xl font-black text-zinc-900 dark:text-white mb-4">
-              The <GradientText>OrderFlow Solution</GradientText>
+              The <GradientText>LOCL Solution</GradientText>
             </h2>
             <p className="text-lg text-zinc-600 dark:text-zinc-400">
               Built by restaurant operators who understand your business.
@@ -200,7 +200,7 @@ export default function ForRestaurants() {
 
               <div className="text-center border-l border-r border-zinc-300 dark:border-zinc-600 px-8">
                 <div className="text-5xl font-black text-emerald-600 mb-2">$150</div>
-                <p className="font-bold text-zinc-700 dark:text-zinc-300 mb-4">OrderFlow Cost</p>
+                <p className="font-bold text-zinc-700 dark:text-zinc-300 mb-4">LOCL Cost</p>
                 <div className="text-sm text-zinc-600 dark:text-zinc-400">
                   <div>$0 per order</div>
                   <div>+ payment fees</div>
@@ -358,11 +358,12 @@ export default function ForRestaurants() {
       {/* CTA SECTION */}
       <section className="py-24 bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-700 dark:to-orange-700">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-5xl sm:text-6xl font-black text-white mb-8">
-            Ready to Stop Losing Money?
-          </h2>
-          <p className="text-xl text-red-100 mb-12 max-w-2xl mx-auto">
-            The average restaurant using OrderFlow saves $7,200/year. What could you do with that extra profit?
+                      <h2 className="text-5xl sm:text-6xl font-black text-white mb-8">
+                      Ready to Stop Losing Money?
+                    </h2>
+                    <p className="text-xl text-red-100 mb-12 max-w-2xl mx-auto">
+                      The average restaurant using LOCL saves $7,200/year. What could you do with that extra profit?
+          
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
