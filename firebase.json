@@ -25,7 +25,10 @@
     "rewrites": [
       {
         "source": "**",
-        "apphosting": "ordersystem"
+        "run": {
+          "serviceId": "ordersystem",
+          "region": "us-east4"
+        }
       }
     ]
   },
