@@ -1,90 +1,108 @@
-import Image from "next/image";
+﻿'use client';
+
 import Link from "next/link";
+import { motion } from "framer-motion";
+import Image from "next/image";
+
+const menuItems = [
+  { name: "General Tso's Chicken", price: "$12.99", image: "/ChineseMenu1.webp" },
+  { name: "Sweet & Sour Pork", price: "$11.99", image: "/ChineseMenu2.webp" },
+  { name: "Beef with Broccoli", price: "$13.99", image: "/ChineseMenu1.webp" },
+  { name: "Kung Pao Chicken", price: "$12.99", image: "/ChineseMenu2.webp" },
+  { name: "Hot & Sour Soup", price: "$5.99", image: "/ChineseMenu1.webp" },
+  { name: "Egg Rolls", price: "$4.99", image: "/ChineseMenu2.webp" },
+];
 
 export default function Home() {
   return (
-    <div className="min-h-[calc(100-5rem)] bg-zinc-50 dark:bg-zinc-950">
+    <div className="bg-white text-black">
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=2000"
-            alt="Delicious Chinese Food"
-            fill
-            className="object-cover opacity-40 dark:opacity-30 grayscale hover:grayscale-0 transition-all duration-1000"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-50 via-transparent to-transparent dark:from-zinc-950" />
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
-            <span className="inline-block bg-indigo-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-[0.2em] mb-6">
-              Now Open for 2026
-            </span>
-            <h1 className="text-7xl md:text-8xl font-black text-indigo-900 dark:text-indigo-400 leading-[0.9] tracking-tighter mb-8 uppercase">
-              Fast. Fresh. <br />
-              <span className="text-zinc-900 dark:text-zinc-100">Transparent.</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-zinc-600 dark:text-zinc-400 font-medium mb-10 max-w-xl leading-relaxed">
-              Experience the next generation of Chinese dining. Watch your food being prepared in real-time.
-            </p>
-            
-            <div className="flex flex-wrap gap-4">
-              <Link 
-                href="/menu" 
-                className="bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-500/40 active:scale-95 text-lg"
-              >
-                Order Now 🐉
-              </Link>
-              <Link 
-                href="/menu" 
-                className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all border border-zinc-200 dark:border-zinc-800 active:scale-95 text-lg"
-              >
+      <motion.section 
+        className="min-h-screen flex items-center justify-center text-center px-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        <div>
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold mb-4"
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            Golden Dragon
+          </motion.h1>
+          <motion.p 
+            className="text-lg md:text-xl text-gray-600 mb-8"
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            Authentic Chinese Cuisine, Delivered.
+          </motion.p>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
+            <Link href="/#menu">
+              <span className="px-8 py-3 bg-black text-white rounded-full font-medium">
                 View Menu
-              </Link>
-            </div>
+              </span>
+            </Link>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Menu Section */}
+      <section id="menu" className="py-24 px-4">
+        <div className="container mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12">Our Menu</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {menuItems.map((item, index) => (
+              <motion.div
+                key={index}
+                className="bg-gray-50 rounded-lg overflow-hidden"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Image src={item.image} alt={item.name} width={400} height={300} className="w-full h-48 object-cover" />
+                <div className="p-6">
+                  <h3 className="text-xl font-bold">{item.name}</h3>
+                  <p className="text-primary mt-2">{item.price}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-24 bg-white dark:bg-zinc-900 border-y border-zinc-200 dark:border-zinc-800">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="flex flex-col gap-4">
-              <div className="text-4xl">⚡</div>
-              <h3 className="text-xl font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100">The Golden Rule</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">
-                Zero friction. We start cooking the moment your payment is confirmed. No phone calls, no waiting, just food.
-              </p>
-            </div>
-            
-            <div className="flex flex-col gap-4">
-              <div className="text-4xl">🎥</div>
-              <h3 className="text-xl font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100">Chef's Eye Live</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">
-                Upgrade your order to see the kitchen in action. Watch our master chefs prepare your meal through our high-def live feed.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="text-4xl">📍</div>
-              <h3 className="text-xl font-black uppercase tracking-tight text-zinc-900 dark:text-zinc-100">Hyper-Local Delivery</h3>
-              <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">
-                Real-time GPS tracking for every delivery. Know exactly where your food is from our wok to your door.
-              </p>
-            </div>
-          </div>
+      {/* About Section */}
+      <section id="about" className="py-24 px-4 bg-gray-50">
+        <div className="container mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6">About Us</h2>
+          <p className="max-w-3xl mx-auto text-gray-600">
+            The Golden Dragon has been serving authentic Chinese food to our community for over 20 years. We use only the freshest ingredients and traditional recipes to bring you a dining experience you won't forget.
+          </p>
         </div>
       </section>
 
-      {/* Modern Chinese Footer */}
-      <footer className="py-12 text-center border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950">
-        <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em]">
-          © 2026 Golden Dragon • Designed for the Future of Food
-        </p>
-      </footer>
+      {/* Contact Section */}
+      <section id="contact" className="py-24 px-4">
+        <div className="container mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-6">Contact Us</h2>
+          <p className="text-lg text-gray-600 mb-8">
+            Order by phone: (555) 123-4567
+          </p>
+          <Link href="/#">
+            <span className="px-8 py-3 bg-black text-white rounded-full font-medium">
+              Get Directions
+            </span>
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
