@@ -88,25 +88,25 @@ export default function Pricing() {
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <PricingCard 
-              title="Essential"
-              price="$47"
-              description="Perfect for new local shops."
-              features={['Up to 500 orders', 'Standard Analytics', 'Email Support', 'Mobile Ordering']}
+              title="Starter"
+              price="$0"
+              description="Everything you need to launch."
+              features={['Unlimited Menu Items', 'Direct Ordering', 'Email Support', 'Basic Analytics', 'Mobile Optimized']}
               delay={0.1}
             />
             <PricingCard 
               title="Growth"
-              price="$147"
+              price="$47"
               description="For bustling local businesses."
-              features={['Unlimited orders', 'Priority Support', 'Custom Branding', 'Advanced Marketing Tools', 'AI Insights']}
+              features={['Sub-second GPS Tracking', 'Live Chef Cam', 'Priority Support', 'Custom Branding', 'SMS Marketing', 'Advanced AI Insights']}
               featured
               delay={0.2}
             />
             <PricingCard 
               title="Enterprise"
               price="Custom"
-              description="Custom solutions for chains."
-              features={['Multi-location Management', 'Dedicated Account Rep', 'API Access', 'Custom Integrations']}
+              description="Custom solutions for large fleets."
+              features={['Multi-location Hub', 'Dedicated Account Rep', 'Full API Access', 'Custom Integrations', 'On-site Onboarding']}
               delay={0.3}
             />
           </div>

@@ -55,17 +55,20 @@ export default function ForConvenienceStores() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Your margins are already tight. Don't lose 30% to delivery apps. Enable QR-based ordering and keep what's yours.
+            Modernize your local shop with a free ordering system. No setup fees, no monthly overhead, and 0% commissions. Keep every cent.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex justify-center"
+            className="flex flex-wrap justify-center gap-4"
           >
             <Link href="/register" className="group px-10 py-5 bg-black text-white rounded-full font-bold text-lg flex items-center gap-3 hover:bg-zinc-800 transition-all shadow-xl">
-              Launch Your Store
+              Start Free Today
               <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link href="/pricing" className="px-10 py-5 bg-white text-black border-2 border-zinc-200 rounded-full font-bold text-lg hover:border-black transition-all">
+              Compare Modules
             </Link>
           </motion.div>
         </div>
@@ -75,8 +78,8 @@ export default function ForConvenienceStores() {
       <section className="py-32 px-4 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Retail Efficiency, Redefined</h2>
-            <p className="text-zinc-500 font-medium">Built for speed, volume, and absolute convenience.</p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Retail Power. No Commissions.</h2>
+            <p className="text-zinc-500 font-medium text-lg">Our core retail platform is free for all local businesses. Scale when you're ready.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard 

@@ -124,6 +124,84 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Mission Section */}
+      <section className="py-32 px-4 bg-zinc-900 text-white rounded-[4rem] mx-4 mb-20 relative overflow-hidden">
+        <div className="container mx-auto max-w-6xl relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter">100% Profit. 0% BS.</h2>
+            <p className="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-12 font-medium leading-relaxed">
+              Delivery platforms take 30% of your hard work. We think that's insane. 
+              LOCL is the first platform built to be free at its core, so you can keep what you earn.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-left mt-20">
+              <div>
+                <h4 className="text-2xl font-bold mb-4 flex items-center gap-3 italic">
+                  <span className="text-indigo-500 not-italic">01.</span> Setup
+                </h4>
+                <p className="text-zinc-500 font-medium leading-relaxed">Simple, fast, and free. Launch your own ordering site in under 10 minutes without a single fee.</p>
+              </div>
+              <div>
+                <h4 className="text-2xl font-bold mb-4 flex items-center gap-3 italic">
+                  <span className="text-indigo-500 not-italic">02.</span> Transact
+                </h4>
+                <p className="text-zinc-500 font-medium leading-relaxed">Customers pay you directly. We never touch your revenue or charge you a commission per order.</p>
+              </div>
+              <div>
+                <h4 className="text-2xl font-bold mb-4 flex items-center gap-3 italic">
+                  <span className="text-indigo-500 not-italic">03.</span> Scale
+                </h4>
+                <p className="text-zinc-500 font-medium leading-relaxed">As you grow, unlock premium modules like GPS tracking and AI analytics to supercharge your kitchen.</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+        {/* Subtle glow */}
+        <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-indigo-600/20 blur-[150px] rounded-full" />
+      </section>
+
+      {/* Feature Deep Dive */}
+      <section className="py-32 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="text-indigo-600 font-black uppercase tracking-widest text-sm mb-4 block">Premium Module</span>
+              <h2 className="text-5xl md:text-6xl font-black mb-8 tracking-tight">The "Chef's Eye" Experience.</h2>
+              <p className="text-xl text-zinc-500 font-medium leading-relaxed mb-10">
+                Give your customers a VIP view into your kitchen. Live streaming your preparation build ultimate trust and turns a simple meal into an event.
+              </p>
+              <ul className="space-y-4 mb-12">
+                <li className="flex items-center gap-3 font-bold text-black italic">
+                  <FaCheck className="text-indigo-600 not-italic" /> High-definition low-latency stream
+                </li>
+                <li className="flex items-center gap-3 font-bold text-black italic">
+                  <FaCheck className="text-indigo-600 not-italic" /> Automated streaming triggers
+                </li>
+                <li className="flex items-center gap-3 font-bold text-black italic">
+                  <FaCheck className="text-indigo-600 not-italic" /> Increases customer retention by 40%
+                </li>
+              </ul>
+              <Link href="/register" className="inline-flex items-center gap-2 text-black font-black text-lg border-b-2 border-black pb-1 hover:gap-4 transition-all">
+                Learn how it works <FaArrowRight />
+              </Link>
+            </motion.div>
+            <div className="aspect-video bg-zinc-50 rounded-[3rem] border border-zinc-100 flex items-center justify-center relative overflow-hidden shadow-2xl">
+               <div className="text-9xl grayscale opacity-10">📹</div>
+               <div className="absolute top-8 right-8 flex items-center gap-2 bg-red-600 text-white px-4 py-1.5 rounded-full font-black text-xs uppercase tracking-widest animate-pulse">
+                  <div className="w-2 h-2 rounded-full bg-white" /> Live Feed
+               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Trust Banner */}
       <section className="py-20 border-t border-gray-50">
         <div className="container mx-auto px-4 text-center">

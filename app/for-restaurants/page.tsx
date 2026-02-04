@@ -55,17 +55,20 @@ export default function ForRestaurants() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Stop losing 30% of your revenue to delivery apps. Take back control with your own high-performance ordering platform.
+            Launch your own digital storefront for free. No setup fees, no monthly costs, and 0% commissions. Keep every dollar you earn.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex justify-center"
+            className="flex flex-wrap justify-center gap-4"
           >
             <Link href="/register" className="group px-10 py-5 bg-black text-white rounded-full font-bold text-lg flex items-center gap-3 hover:bg-zinc-800 transition-all shadow-xl">
-              Start Free Trial
+              Start for Free
               <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link href="/pricing" className="px-10 py-5 bg-white text-black border-2 border-zinc-100 rounded-full font-bold text-lg hover:border-black transition-all">
+              View Premium Modules
             </Link>
           </motion.div>
         </div>
@@ -75,8 +78,8 @@ export default function ForRestaurants() {
       <section className="py-32 px-4 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">The Operating System for Growth</h2>
-            <p className="text-zinc-500 font-medium">Everything you need to run a modern, profitable kitchen.</p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Core Power. Paid Upgrades.</h2>
+            <p className="text-zinc-500 font-medium text-lg">Our core ordering system is always free. Only pay for the elite tools you need.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard 
