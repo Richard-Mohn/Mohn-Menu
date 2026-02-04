@@ -16,19 +16,7 @@
     }
   ],
   "hosting": {
-    "public": "out",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "trailingSlash": true,
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "apphosting": "chinesesystem"
   },
   "firestore": {
     "rules": "firestore.rules",
