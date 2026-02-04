@@ -13,17 +13,17 @@ interface FeatureCardProps {
 
 const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps) => (
   <motion.div
-    className="bg-white p-8 rounded-3xl shadow-[0_10px_50px_rgba(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_20px_70px_rgba(0,0,0,0.08)] transition-all duration-500 flex flex-col items-start text-left group"
-    initial={{ y: 50, opacity: 0 }}
+    className="bg-zinc-50 p-8 rounded-3xl border border-zinc-200 hover:border-black transition-all duration-500 flex flex-col items-start text-left group"
+    initial={{ y: 20, opacity: 0 }}
     whileInView={{ y: 0, opacity: 1 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.8, delay }}
+    transition={{ duration: 0.5, delay }}
   >
-    <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-black group-hover:text-white transition-colors duration-500">
+    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-6 group-hover:bg-black group-hover:text-white border border-zinc-100 transition-colors duration-500 shadow-sm">
       <Icon className="text-2xl" />
     </div>
     <h4 className="text-xl font-bold text-black mb-3">{title}</h4>
-    <p className="text-gray-500 text-sm leading-relaxed">{description}</p>
+    <p className="text-zinc-600 text-sm leading-relaxed">{description}</p>
   </motion.div>
 );
 
@@ -44,36 +44,36 @@ export default function Home() {
             </motion.div>
             
             <motion.h1
-              className="text-7xl md:text-9xl font-black mb-8 tracking-tighter text-black"
-              initial={{ opacity: 0, y: 20 }}
+              className="text-7xl md:text-9xl font-black mb-8 tracking-tighter text-zinc-900"
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             >
-              LOCL<span className="text-blue-600">.</span>
+              LOCL<span className="text-indigo-600">.</span>
             </motion.h1>
             
             <motion.p
-              className="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed font-medium"
-              initial={{ opacity: 0, y: 20 }}
+              className="text-xl md:text-2xl text-zinc-600 max-w-2xl mx-auto mb-12 leading-relaxed font-medium"
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
             >
-              We're rewriting the rules of local commerce. 
-              Simple, powerful, and built for your bottom line.
+              The 2026 standard for local commerce. 
+              Built for profit, not platforms.
             </motion.p>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <Link href="/register" className="group px-8 py-4 bg-black text-white rounded-full font-bold text-lg flex items-center gap-2 hover:bg-gray-800 transition-all active:scale-95 shadow-2xl shadow-black/20">
-                Join the Revolution
+              <Link href="/register" className="group px-10 py-5 bg-zinc-900 text-white rounded-full font-bold text-lg flex items-center gap-3 hover:bg-black transition-all active:scale-95 shadow-xl">
+                Join the Waitlist
                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link href="/about" className="px-8 py-4 bg-transparent text-black border-2 border-gray-100 rounded-full font-bold text-lg hover:border-black transition-all">
-                Our Mission
+              <Link href="/about" className="px-10 py-5 bg-white text-zinc-900 border-2 border-zinc-200 rounded-full font-bold text-lg hover:border-zinc-900 transition-all">
+                The Vision
               </Link>
             </motion.div>
           </div>

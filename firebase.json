@@ -17,10 +17,15 @@
   ],
   "hosting": {
     "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
       {
         "source": "**",
-        "destination": "chinesesystem"
+        "destination": "/index.html"
       }
     ]
   },

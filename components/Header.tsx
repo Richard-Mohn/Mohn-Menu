@@ -15,7 +15,7 @@ interface NavLinkProps {
 const NavLink = ({ href, children }: NavLinkProps) => (
   <Link href={href} passHref>
     <motion.div
-      className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-black"
+      className="px-4 py-2 text-sm font-bold text-zinc-600 hover:text-black"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
@@ -42,16 +42,16 @@ const Header = () => {
   return (
     <motion.header
       className={cn(
-        'sticky top-0 z-50 transition-all duration-300',
+        'sticky top-0 z-[100] transition-all duration-300 border-b',
         isScrolled
-          ? 'bg-white/80 backdrop-blur-lg shadow-lg'
-          : 'bg-transparent'
+          ? 'bg-white/95 backdrop-blur-md shadow-sm border-zinc-100'
+          : 'bg-white border-transparent'
       )}
     >
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl font-bold text-black">
-            LOCL
+          <span className="text-3xl font-black tracking-tighter text-black">
+            LOCL<span className="text-indigo-600">.</span>
           </span>
         </Link>
 
@@ -85,12 +85,12 @@ const Header = () => {
             <div className="flex items-center gap-2">
                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link href="/dashboard">
-                    <span className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-black">Dashboard</span>
+                    <span className="px-4 py-2 text-sm font-bold text-zinc-600 hover:text-black">Dashboard</span>
                 </Link>
                </motion.div>
               <motion.button
                 onClick={() => logout()}
-                className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-black"
+                className="px-4 py-2 text-sm font-bold text-zinc-600 hover:text-black"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -100,7 +100,7 @@ const Header = () => {
           ) : (
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link href="/login">
-                <span className="px-6 py-2.5 bg-black text-white rounded-full text-sm font-medium">
+                <span className="px-6 py-2.5 bg-black text-white rounded-full text-sm font-bold shadow-lg shadow-black/10">
                   Sign In
                 </span>
               </Link>
