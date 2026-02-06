@@ -64,7 +64,7 @@ export default function DriverDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="flex items-center justify-center min-h-screen bg-white/90">
         <div className="text-lg font-black text-zinc-400 animate-pulse uppercase tracking-widest">Driver Mode...</div>
       </div>
     );

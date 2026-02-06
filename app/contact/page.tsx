@@ -31,7 +31,7 @@ const ContactMethod = ({ icon: Icon, title, detail, sub, delay }: ContactMethodP
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-white pt-36 pb-20 px-4">
+    <div className="min-h-screen bg-white/90 pt-36 pb-20 px-4">
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center mb-16">

@@ -33,7 +33,7 @@ const Step = ({ num, title, desc, delay }: StepProps) => (
 
 export default function ForBarsNightlife() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white/90">
       <section className="pt-36 pb-20 px-4 relative overflow-hidden">
         <div className="container mx-auto max-w-5xl text-center relative z-10">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}

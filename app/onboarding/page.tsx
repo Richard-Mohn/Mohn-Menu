@@ -245,7 +245,7 @@ export default function OnboardingPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-white/90">
         <div className="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
       </div>
     );

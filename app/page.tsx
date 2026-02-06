@@ -77,7 +77,7 @@ export default function Home() {
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white selection:bg-black selection:text-white">
+    <div className="min-h-screen bg-white/90 selection:bg-black selection:text-white">
       {/* Shimmer keyframe */}
       <style jsx global>{`
         @keyframes shimmer {

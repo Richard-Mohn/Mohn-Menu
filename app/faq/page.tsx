@@ -87,7 +87,7 @@ export default function FAQ() {
   ];
 
   return (
-    <div className="min-h-screen bg-white pt-36 pb-20 px-4">
+    <div className="min-h-screen bg-white/90 pt-36 pb-20 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-16">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}

@@ -56,7 +56,7 @@ const FAQS = [
 
 export default function CryptoPaymentsFeature() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white/90">
       {/* Hero */}
       <section className="pt-36 pb-20 px-4">
         <div className="container mx-auto max-w-5xl text-center">

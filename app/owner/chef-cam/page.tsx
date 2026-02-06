@@ -49,7 +49,7 @@ export default function ChefCamSetup() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="flex items-center justify-center min-h-screen bg-white/90">
         <div className="text-lg font-bold text-zinc-400 animate-pulse">
           Loading Chef Cam Setup...
         </div>

@@ -29,7 +29,7 @@ const ValueCard = ({ icon: Icon, title, description, delay }: ValueCardProps) =>
 
 export default function About() {
   return (
-    <div className="bg-white text-black">
+    <div className="bg-white/90 text-black">
       {/* Hero Section */}
       <section className="pt-36 pb-20 px-4 relative overflow-hidden">
         <div className="container mx-auto max-w-4xl text-center relative z-10">
