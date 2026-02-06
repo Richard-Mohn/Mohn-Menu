@@ -21,11 +21,12 @@ export type BusinessType =
   | 'other';
 
 // Subscription tiers that determine feature access & pricing
+// All tiers include 14-day free trial, then monthly billing
 export type SubscriptionTier = 
-  | 'free'         // Free tier — online ordering with 1% platform fee only
-  | 'starter'      // $297 setup, self-service
-  | 'partner'      // $699 setup + $99/mo, done-with-you
-  | 'agency'       // $1,499 setup + $299/mo, full service
+  | 'free'         // 14-day trial (all tiers start here)
+  | 'starter'      // $19.99/mo — core ordering, payments, storefront
+  | 'growth'       // $49.99/mo — GPS tracking, KDS, analytics, marketing
+  | 'professional' // $99.99/mo — multi-location, API, priority support
   | 'reseller';    // Custom, white-label partner
 
 // User roles in the system

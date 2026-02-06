@@ -44,14 +44,21 @@ const PricingCard = ({ title, price, period, description, features, icon: Icon, 
     </div>
 
     <ul className="space-y-4 mb-12 flex-1 w-full">
-      {features.map((feature, i) => (
-        <li key={i} className="flex items-start gap-3 text-sm font-medium">
-          <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${featured ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-500'}`}>
-            <FaCheck className="text-[8px]" />
-          </div>
-          <span className={featured ? 'text-zinc-300' : 'text-zinc-600'}>{feature}</span>
-        </li>
-      ))}
+      {features.map((feature, i) => {
+        const isComingSoon = feature.includes('(coming soon)');
+        const label = feature.replace(' (coming soon)', '');
+        return (
+          <li key={i} className="flex items-start gap-3 text-sm font-medium">
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${featured ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-500'}`}>
+              <FaCheck className="text-[8px]" />
+            </div>
+            <span className={featured ? 'text-zinc-300' : 'text-zinc-600'}>
+              {label}
+              {isComingSoon && <span className={`ml-1.5 text-[10px] font-black uppercase tracking-wider ${featured ? 'text-zinc-500' : 'text-zinc-400'} bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded`}>Soon</span>}
+            </span>
+          </li>
+        );
+      })}
     </ul>
 
     <Link href="/register" className="w-full">
@@ -60,7 +67,7 @@ const PricingCard = ({ title, price, period, description, features, icon: Icon, 
           ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:shadow-lg hover:shadow-orange-500/20'
           : 'bg-zinc-900 text-white hover:bg-black'
       }`}>
-        Get Started <FaArrowRight className="text-xs" />
+        Start 14-Day Free Trial <FaArrowRight className="text-xs" />
       </button>
     </Link>
   </motion.div>
@@ -89,7 +96,7 @@ export default function Pricing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            Start free. Scale when ready. Never pay a percentage of your sales. MohnMenu charges flat rates — your revenue is yours.
+            Every plan starts with a 14-day free trial. No credit card required. Zero commissions — always.
           </motion.p>
         </div>
       </section>
@@ -100,58 +107,59 @@ export default function Pricing() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <PricingCard
               title="Starter"
-              price="$0"
-              period="/month forever"
-              description="Launch your online ordering for free."
+              price="$19.99"
+              period="/month"
+              description="Everything you need to sell online. 14-day free trial."
               icon={FaStar}
               features={[
                 'Unlimited menu items & categories',
-                'Order with Google integration',
+                'White-label branded storefront',
                 'Card payments via Stripe',
-                'Crypto payments (BTC, ETH, LTC)',
+                'Crypto payments (BTC, ETH + 6 more)',
                 'Cash-on-delivery toggle',
-                'Fraud & chargeback protection',
                 'QR code ordering',
-                'Basic sales analytics',
-                'White-label storefront',
+                'Quick Order modal for your customers',
+                'Fraud & chargeback protection',
+                'Basic sales dashboard',
               ]}
               delay={0.1}
             />
             <PricingCard
               title="Growth"
-              price="$47"
+              price="$49.99"
               period="/month"
-              description="Premium modules for growing businesses."
+              description="Premium tools for growing businesses. 14-day free trial."
               icon={FaRocket}
               features={[
                 'Everything in Starter',
-                'Sub-second GPS fleet tracking',
-                'Live Chef Cam streaming',
-                'SMS & email marketing',
-                'AI-powered sales insights',
                 'Kitchen Display System (KDS)',
-                'Priority 24/7 support',
+                'Real-time order tracking',
+                'Sales & product analytics',
                 'Custom domain support',
-                'Advanced analytics dashboard',
+                'Priority email support',
+                'POS integration (coming soon)',
+                'SMS & email marketing (coming soon)',
+                'AI-powered sales insights (coming soon)',
               ]}
               featured
               delay={0.2}
             />
             <PricingCard
-              title="Enterprise"
-              price="Custom"
-              description="Tailored solutions for multi-location brands."
+              title="Professional"
+              price="$99.99"
+              period="/month"
+              description="Full platform for serious operations. 14-day free trial."
               icon={FaBuilding}
               features={[
                 'Everything in Growth',
-                'Multi-location management hub',
-                'Dedicated account manager',
-                'Full REST API access',
-                'Custom integrations & webhooks',
-                'Smart inventory management',
-                'On-site onboarding & training',
-                'SLA guarantee',
-                'Volume-based negotiation',
+                'Sub-second GPS fleet tracking',
+                'Live Chef Cam streaming',
+                'Driver dispatch & management',
+                'Multi-location management (coming soon)',
+                'REST API access (coming soon)',
+                'Dedicated support channel',
+                'Advanced reporting & exports',
+                'Custom integrations (coming soon)',
               ]}
               delay={0.3}
             />
@@ -166,8 +174,8 @@ export default function Pricing() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { label: '0% Commission', sub: 'On every order' },
+              { label: '14-Day Trial', sub: 'No credit card' },
               { label: 'No Contracts', sub: 'Cancel anytime' },
-              { label: 'No Setup Fees', sub: 'Start in minutes' },
               { label: 'Free Updates', sub: 'New features included' },
             ].map((item, i) => (
               <motion.div key={i} className="text-center" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
@@ -183,7 +191,7 @@ export default function Pricing() {
       <section className="py-24 px-4">
         <div className="container mx-auto max-w-4xl bg-zinc-950 rounded-[3rem] p-10 md:p-16 text-white shadow-2xl relative overflow-hidden text-center">
           <div className="relative z-10">
-            <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">The 90% Savings Standard.</h2>
+            <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">Try it 14 days free. Then $19.99.</h2>
             <p className="text-zinc-400 text-xl font-medium mb-10">
               By switching from commission-based platforms to MohnMenu, the average business saves <span className="text-white font-black">$1,350+ every month</span>. That&apos;s money you earned — keep it.
             </p>
@@ -193,7 +201,7 @@ export default function Pricing() {
               <div>No Contracts</div>
             </div>
             <Link href="/register" className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-bold text-lg hover:shadow-xl hover:shadow-orange-500/20 transition-all active:scale-95">
-              Start Free Today <FaArrowRight />
+              Start Your Free Trial <FaArrowRight />
             </Link>
           </div>
           <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-orange-600/10 to-transparent blur-3xl pointer-events-none" />

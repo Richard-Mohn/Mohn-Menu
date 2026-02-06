@@ -1,13 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import Link from "next/link";
 import { motion } from "framer-motion";
+import dynamic from 'next/dynamic';
 import {
   FaMapMarkerAlt, FaVideo, FaRocket, FaShieldAlt, FaArrowRight, FaCheck,
   FaTruck, FaBitcoin, FaCreditCard, FaBrain, FaChartLine, FaStore,
   FaGoogle, FaLock, FaBolt, FaUtensils, FaBirthdayCake, FaShoppingBasket,
-  FaGlassCheers, FaCoffee
+  FaGlassCheers, FaCoffee, FaShoppingCart, FaPlay
 } from 'react-icons/fa';
+
+const QuickOrderModal = dynamic(() => import('@/components/QuickOrderModal'), { ssr: false });
 
 /* ─── Reusable Components ─── */
 
@@ -56,9 +60,35 @@ const StatBlock = ({ value, label, delay }: StatBlockProps) => (
 
 /* ─── Page ─── */
 
+/* Demo business for Quick Order preview */
+const DEMO_BUSINESS = {
+  businessId: 'demo-china-wok-rva',
+  name: 'China Wok',
+  slug: 'china-wok-rva',
+  type: 'restaurant' as const,
+  description: 'Authentic Chinese cuisine made fresh daily',
+  brandColors: { primary: '#DC2626', secondary: '#991B1B', accent: '#F59E0B' },
+  businessPhone: '(804) 555-8888',
+  settings: { enableOrdering: true, enableDelivery: true, enablePickup: true, enableCashPayment: true, enableCryptoPayment: true, deliveryFee: 3.99, deliveryRadius: 10, taxRate: 0.053, minimumOrder: 10, estimatedPrepTime: 20 },
+  website: { heroTitle: 'China Wok', heroSubtitle: 'Richmond\'s favorite Chinese restaurant', showHero: true },
+} as any;
+
 export default function Home() {
+  const [quickOrderOpen, setQuickOrderOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-white selection:bg-black selection:text-white">
+      {/* Shimmer keyframe */}
+      <style jsx global>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(249,115,22,0.3), 0 0 60px rgba(249,115,22,0.1); }
+          50% { box-shadow: 0 0 30px rgba(249,115,22,0.5), 0 0 80px rgba(249,115,22,0.2); }
+        }
+      `}</style>
 
       {/* ━━━ HERO ━━━ */}
       <section className="relative pt-28 md:pt-40 pb-16 md:pb-24 px-4 overflow-hidden">
@@ -120,6 +150,47 @@ export default function Home() {
                 Sign In
               </Link>
             </motion.div>
+
+            {/* ── Quick Order Try-It Button ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.85 }}
+              className="mt-6 flex justify-center"
+            >
+              <div className="relative group">
+                {/* Floating tag */}
+                <motion.div
+                  className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg z-10"
+                  animate={{ y: [0, -4, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  ▶ TRY IT LIVE
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 bg-orange-600 rotate-45" />
+                </motion.div>
+
+                {/* The button */}
+                <button
+                  onClick={() => setQuickOrderOpen(true)}
+                  className="relative px-8 py-4 md:px-10 md:py-5 rounded-full font-bold text-base md:text-lg bg-gradient-to-r from-orange-500 to-red-600 text-white overflow-hidden transition-all active:scale-95 flex items-center gap-3"
+                  style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}
+                >
+                  {/* Shimmer sweep */}
+                  <span className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
+                    <span
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{
+                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                        animation: 'shimmer 1.5s infinite',
+                      }}
+                    />
+                  </span>
+                  <FaShoppingCart className="relative z-10" />
+                  <span className="relative z-10">Quick Order Demo</span>
+                  <FaPlay className="relative z-10 text-xs group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </motion.div>
           </div>
         </div>
 
@@ -128,6 +199,51 @@ export default function Home() {
           <div className="absolute top-20 left-10 w-72 h-72 bg-orange-200 rounded-full blur-[120px]" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-red-100 rounded-full blur-[150px]" />
           <div className="absolute top-40 right-1/4 w-48 h-48 bg-amber-100 rounded-full blur-[100px]" />
+        </div>
+      </section>
+
+      {/* ━━━ STOREFRONT PREVIEW CARDS ━━━ */}
+      <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-zinc-50 to-white">
+        <div className="container mx-auto max-w-6xl">
+          <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <span className="text-orange-600 font-black uppercase tracking-widest text-xs mb-3 block">See What You Get</span>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">Your business. Online. Instantly.</h2>
+            <p className="text-zinc-400 text-lg max-w-xl mx-auto">Every business type gets a branded storefront tailored to how they sell — menus, catalogs, or product listings.</p>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {[
+              { type: 'Restaurant', page: 'Your Menu', emoji: '🍽️', color: 'from-orange-500 to-red-500', href: '/demo' },
+              { type: 'Bakery / Café', page: 'Your Menu', emoji: '🧁', color: 'from-pink-500 to-rose-500', href: '/demo' },
+              { type: 'Food Truck', page: 'Your Menu', emoji: '🚚', color: 'from-yellow-500 to-orange-500', href: '/demo' },
+              { type: 'Bar & Grill', page: 'Your Drink Menu', emoji: '🍺', color: 'from-purple-500 to-violet-500', href: '/demo' },
+              { type: 'Grocery Store', page: 'Your Product Catalog', emoji: '🛒', color: 'from-green-500 to-emerald-500', href: '/demo' },
+              { type: 'Boutique', page: 'Your Storefront', emoji: '👗', color: 'from-amber-500 to-orange-500', href: '/demo' },
+              { type: 'Antique Shop', page: 'Your Product Gallery', emoji: '🏺', color: 'from-amber-600 to-yellow-600', href: '/demo' },
+              { type: 'Convenience Store', page: 'Your Quick-Shop', emoji: '🏪', color: 'from-blue-500 to-indigo-500', href: '/demo' },
+            ].map((item, i) => (
+              <motion.div
+                key={item.type}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06 }}
+              >
+                <Link href={item.href} className="group block bg-white rounded-2xl border border-zinc-100 hover:border-zinc-300 hover:shadow-xl transition-all duration-500 overflow-hidden">
+                  <div className={`h-24 md:h-32 bg-gradient-to-br ${item.color} flex items-center justify-center relative overflow-hidden`}>
+                    <span className="text-4xl md:text-5xl z-10 group-hover:scale-110 transition-transform duration-500">{item.emoji}</span>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  </div>
+                  <div className="p-4">
+                    <div className="font-bold text-black text-sm mb-0.5">{item.type}</div>
+                    <div className="text-xs text-zinc-400 font-medium">{item.page}</div>
+                    <div className="mt-2 flex items-center gap-1 text-[10px] font-black text-orange-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                      <FaPlay className="text-[8px]" /> Live Demo
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -473,11 +589,11 @@ export default function Home() {
             </div>
             <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">Ready to keep 100%?</h2>
             <p className="text-zinc-400 text-lg max-w-xl mx-auto mb-10">
-              Set up in under 10 minutes. No credit card. No commitment. Start free — scale when you&apos;re ready.
+              14-day free trial. No credit card. No commitment. Start building your store today.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/register" className="group px-10 py-5 bg-white text-black rounded-full font-bold text-lg flex items-center gap-3 hover:bg-zinc-100 transition-all active:scale-95">
-                Get Started Free
+                Start Free Trial
                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link href="/pricing" className="px-10 py-5 border-2 border-zinc-700 text-white rounded-full font-bold text-lg hover:border-white transition-all">
@@ -488,6 +604,13 @@ export default function Home() {
         </div>
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-orange-600/10 blur-[120px] rounded-full" />
       </section>
+
+      {/* Quick Order Modal */}
+      <QuickOrderModal
+        business={DEMO_BUSINESS}
+        isOpen={quickOrderOpen}
+        onClose={() => setQuickOrderOpen(false)}
+      />
     </div>
   );
 }
