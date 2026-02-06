@@ -46,6 +46,9 @@ const BUSINESS_TYPES = [
   { value: 'grocery', label: 'Grocery Store', icon: '🛒', desc: 'Fresh produce & groceries' },
   { value: 'food_truck', label: 'Food Truck', icon: '🚚', desc: 'Mobile food service' },
   { value: 'bar_grill', label: 'Bar & Grill', icon: '🍺', desc: 'Drinks & pub food' },
+  { value: 'boutique', label: 'Boutique / Small Shop', icon: '👗', desc: 'Clothing, gifts & accessories' },
+  { value: 'antique_shop', label: 'Antique Shop', icon: '🏺', desc: 'Antiques, vintage & collectibles' },
+  { value: 'market', label: 'Market / Farm Stand', icon: '🧺', desc: 'Farmers market & local goods' },
   { value: 'other', label: 'Other', icon: '🏬', desc: 'Something else' },
 ];
 

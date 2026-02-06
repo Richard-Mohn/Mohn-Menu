@@ -8,14 +8,20 @@ import { cn } from '@/lib/utils';
 import {
   FaSignOutAlt, FaChevronDown, FaBitcoin, FaMapMarkerAlt, FaVideo,
   FaShoppingCart, FaUtensils, FaCoffee, FaDesktop, FaTruck,
-  FaClipboardList, FaGlobe
+  FaClipboardList, FaGlobe, FaBirthdayCake, FaShoppingBasket,
+  FaGlassCheers, FaStore
 } from 'react-icons/fa';
 import AuthModal from '@/components/AuthModal';
 
 /* ─── Mega-menu data ─── */
 const solutions = [
   { href: '/for-restaurants', icon: FaUtensils, label: 'Restaurants', desc: 'Full ordering, delivery & kitchen tools' },
-  { href: '/for-convenience-stores', icon: FaCoffee, label: 'Retail & Stores', desc: 'QR ordering, inventory & grab-and-go' },
+  { href: '/for-bakeries-cafes', icon: FaBirthdayCake, label: 'Bakeries & Cafés', desc: 'Pre-orders, custom cakes & catering' },
+  { href: '/for-food-trucks', icon: FaTruck, label: 'Food Trucks', desc: 'QR menus, mobile pay & GPS location' },
+  { href: '/for-grocery-markets', icon: FaShoppingBasket, label: 'Grocery & Markets', desc: 'Online catalog, pickup & delivery' },
+  { href: '/for-bars-nightlife', icon: FaGlassCheers, label: 'Bars & Nightlife', desc: 'Table ordering, tabs & event menus' },
+  { href: '/for-convenience-stores', icon: FaCoffee, label: 'Convenience Stores', desc: 'QR ordering, inventory & grab-and-go' },
+  { href: '/for-retail-shops', icon: FaStore, label: 'Shops & Boutiques', desc: 'AI product listing & online storefront' },
 ];
 
 const featureItems = [
@@ -125,7 +131,9 @@ const Header = () => {
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-0.5">
           <NavDropdown label="Solutions" open={openMenu === 'solutions'} onToggle={() => toggle('solutions')} onClose={closeDropdown}>
-            {solutions.map(s => <DropLink key={s.href} {...s} onClick={closeDropdown} />)}
+            <div className="grid grid-cols-2 gap-1 min-w-[520px]">
+              {solutions.map(s => <DropLink key={s.href} {...s} onClick={closeDropdown} />)}
+            </div>
           </NavDropdown>
 
           <NavDropdown label="Features" open={openMenu === 'features'} onToggle={() => toggle('features')} onClose={closeDropdown}>
@@ -203,12 +211,11 @@ const Header = () => {
           >
             <nav className="container mx-auto px-6 py-8 flex flex-col gap-1">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3 ml-1">Solutions</p>
-              <Link href="/for-restaurants" onClick={closeMobile} className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-zinc-50">
-                <FaUtensils className="text-orange-500" /><span className="font-bold text-black">Restaurants</span>
-              </Link>
-              <Link href="/for-convenience-stores" onClick={closeMobile} className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-zinc-50">
-                <FaCoffee className="text-blue-500" /><span className="font-bold text-black">Retail &amp; Stores</span>
-              </Link>
+              {solutions.map(s => (
+                <Link key={s.href} href={s.href} onClick={closeMobile} className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-zinc-50">
+                  <s.icon className="text-orange-500" /><span className="font-bold text-black">{s.label}</span>
+                </Link>
+              ))}
 
               <div className="h-px bg-zinc-100 my-4" />
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3 ml-1">Features</p>

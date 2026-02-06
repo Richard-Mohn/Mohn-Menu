@@ -7,11 +7,18 @@
 // Business types that determine feature availability
 export type BusinessType = 
   | 'restaurant'
+  | 'chinese_restaurant'
+  | 'pizza'
+  | 'mexican'
+  | 'bakery'
   | 'convenience_store'
-  | 'home_bakery'
-  | 'meal_prep'
-  | 'crafter'
-  | 'farm_csa';
+  | 'grocery'
+  | 'food_truck'
+  | 'bar_grill'
+  | 'boutique'
+  | 'antique_shop'
+  | 'market'
+  | 'other';
 
 // Subscription tiers that determine feature access & pricing
 export type SubscriptionTier = 

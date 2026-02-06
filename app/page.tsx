@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import {
   FaMapMarkerAlt, FaVideo, FaRocket, FaShieldAlt, FaArrowRight, FaCheck,
   FaTruck, FaBitcoin, FaCreditCard, FaBrain, FaChartLine, FaStore,
-  FaGoogle, FaLock, FaBolt
+  FaGoogle, FaLock, FaBolt, FaUtensils, FaBirthdayCake, FaShoppingBasket,
+  FaGlassCheers, FaCoffee
 } from 'react-icons/fa';
 
 /* ─── Reusable Components ─── */
@@ -454,12 +455,21 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-xs mb-8">Trusted by modern businesses</p>
-            <div className="flex flex-wrap justify-center items-center gap-10 mb-16 opacity-30">
-              <div className="text-xl font-black">RESTAURANTS</div>
-              <div className="text-xl font-black">STORES</div>
-              <div className="text-xl font-black">MARKETS</div>
-              <div className="text-xl font-black">CAFES</div>
-              <div className="text-xl font-black">FOOD TRUCKS</div>
+            <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6 mb-16">
+              {[
+                { href: '/for-restaurants', icon: FaUtensils, label: 'Restaurants' },
+                { href: '/for-bakeries-cafes', icon: FaBirthdayCake, label: 'Bakeries & Cafés' },
+                { href: '/for-food-trucks', icon: FaTruck, label: 'Food Trucks' },
+                { href: '/for-grocery-markets', icon: FaShoppingBasket, label: 'Markets' },
+                { href: '/for-bars-nightlife', icon: FaGlassCheers, label: 'Bars' },
+                { href: '/for-convenience-stores', icon: FaCoffee, label: 'Stores' },
+                { href: '/for-retail-shops', icon: FaStore, label: 'Shops & Boutiques' },
+              ].map((item) => (
+                <Link key={item.href} href={item.href} className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-zinc-700 hover:border-white hover:bg-white/10 transition-all group">
+                  <item.icon className="text-sm text-zinc-500 group-hover:text-orange-400 transition-colors" />
+                  <span className="text-sm font-bold text-zinc-400 group-hover:text-white transition-colors">{item.label}</span>
+                </Link>
+              ))}
             </div>
             <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">Ready to keep 100%?</h2>
             <p className="text-zinc-400 text-lg max-w-xl mx-auto mb-10">
