@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, type MouseEvent as ReactMouseEvent } from 'react';
 import { collection, query, where, getDocs, addDoc, orderBy, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { MohnMenuBusiness } from '@/lib/types';
@@ -85,6 +85,12 @@ interface RawMenuItem {
   isSpicy?: boolean;
   popular?: boolean;
   available?: boolean;
+  trackStock?: boolean;
+  stock?: number | null;
+  lowStockThreshold?: number;
+  orderCount?: number;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -127,6 +133,12 @@ async function getMenuItems(businessId: string): Promise<RawMenuItem[]> {
           isSpicy: data.isSpicy || data.spicy,
           popular: data.popular,
           available: data.available,
+          trackStock: data.trackStock,
+          stock: data.stock ?? null,
+          lowStockThreshold: data.lowStockThreshold,
+          orderCount: data.orderCount,
+          averageRating: data.averageRating,
+          reviewCount: data.reviewCount,
         } as RawMenuItem;
       });
     }
@@ -207,6 +219,29 @@ export default function OrderPage({
   const [selectedSize, setSelectedSize] = useState('');
   const [itemQty, setItemQty] = useState(1);
   const [specialInstructions, setSpecialInstructions] = useState('');
+  const [showAddedConfirm, setShowAddedConfirm] = useState<string | null>(null);
+
+  // ── Desktop drag-scroll for category tabs ──
+  const catScrollRef = useRef<HTMLDivElement>(null);
+  const catDragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, hasDragged: false });
+  const handleCatMouseDown = (e: ReactMouseEvent) => {
+    const el = catScrollRef.current; if (!el) return;
+    catDragState.current = { isDown: true, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft, hasDragged: false };
+    el.style.cursor = 'grabbing';
+  };
+  const handleCatMouseUp = () => {
+    catDragState.current.isDown = false;
+    if (catScrollRef.current) catScrollRef.current.style.cursor = 'grab';
+  };
+  const handleCatMouseMove = (e: ReactMouseEvent) => {
+    if (!catDragState.current.isDown) return;
+    e.preventDefault();
+    const el = catScrollRef.current; if (!el) return;
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - catDragState.current.startX) * 1.5;
+    if (Math.abs(walk) > 3) catDragState.current.hasDragged = true;
+    el.scrollLeft = catDragState.current.scrollLeft - walk;
+  };
 
   // Checkout state
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -314,7 +349,9 @@ export default function OrderPage({
     setItemQty(1);
     setSelectedSize('');
     setSpecialInstructions('');
-    setCartOpen(true);
+    // Show "Added!" confirmation instead of auto-opening cart
+    setShowAddedConfirm(cartItem.name);
+    setTimeout(() => setShowAddedConfirm(null), 3000);
   }, [showItemModal, selectedSize, itemQty, specialInstructions, addToCart]);
 
   // ── Build order data object ──
@@ -702,11 +739,19 @@ export default function OrderPage({
           {/* Category tabs — redesigned with 3D glassmorphic look */}
           {!search && (
             <div className="relative">
-              <div className="flex gap-2 overflow-x-auto pb-3 scroll-smooth" style={{ scrollbarWidth: 'none' }}>
+              <div
+                ref={catScrollRef}
+                className="flex gap-2 overflow-x-auto pb-3 scroll-smooth cursor-grab select-none"
+                style={{ scrollbarWidth: 'none' }}
+                onMouseDown={handleCatMouseDown}
+                onMouseUp={handleCatMouseUp}
+                onMouseLeave={handleCatMouseUp}
+                onMouseMove={handleCatMouseMove}
+              >
                 {categories.map(cat => (
                   <button
                     key={cat}
-                    onClick={() => setActiveCategory(cat)}
+                    onClick={() => { if (!catDragState.current.hasDragged) setActiveCategory(cat); }}
                     className={`whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 border ${
                       activeCategory === cat
                         ? 'bg-gradient-to-r from-zinc-900 to-zinc-800 text-white border-zinc-700 shadow-lg shadow-black/20 scale-[1.02]'
@@ -745,19 +790,23 @@ export default function OrderPage({
             {filteredItems.map(item => {
               const lowestPrice = getLowestPrice(item.prices);
               const hasSizes = Object.keys(item.prices).length > 1;
+              const isSoldOut = item.trackStock && item.stock !== undefined && item.stock !== null && item.stock <= 0;
 
               return (
                 <motion.button
                   key={item.id}
                   onClick={() => {
+                    if (isSoldOut) return;
                     setShowItemModal(item);
                     setSelectedSize(getDefaultPriceKey(item.prices));
                     setItemQty(1);
                     setSpecialInstructions('');
                   }}
-                  className="bg-white rounded-2xl border border-zinc-200 hover:border-zinc-400 transition-all text-left overflow-hidden group"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.98 }}
+                  className={`bg-white rounded-2xl border border-zinc-200 hover:border-zinc-400 transition-all text-left overflow-hidden group ${
+                    isSoldOut ? 'opacity-60 cursor-not-allowed' : ''
+                  }`}
+                  whileHover={isSoldOut ? {} : { y: -2 }}
+                  whileTap={isSoldOut ? {} : { scale: 0.98 }}
                 >
                   {/* Item image */}
                   {item.image_url && (
@@ -768,14 +817,26 @@ export default function OrderPage({
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
                       />
-                      {item.isSpicy && (
-                        <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <FaFire className="text-[10px]" /> Spicy
-                        </span>
-                      )}
+                      <div className="absolute top-3 left-3 flex gap-1.5">
+                        {item.isSpicy && (
+                          <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <FaFire className="text-[10px]" /> Spicy
+                          </span>
+                        )}
+                      </div>
                       {item.popular && (
                         <span className="absolute top-3 right-3 bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                           Popular
+                        </span>
+                      )}
+                      {isSoldOut && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">Sold Out</span>
+                        </div>
+                      )}
+                      {item.trackStock && item.stock !== undefined && item.stock !== null && item.stock > 0 && item.stock <= (item.lowStockThreshold || 5) && (
+                        <span className="absolute bottom-2 right-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          {item.stock} left
                         </span>
                       )}
                     </div>
@@ -803,6 +864,18 @@ export default function OrderPage({
                         ))}
                       </div>
                     )}
+
+                    {/* Order stats */}
+                    {(item.orderCount || item.averageRating) && (
+                      <div className="flex items-center gap-3 mt-2 pt-2 border-t border-zinc-100">
+                        {item.orderCount && item.orderCount > 0 && (
+                          <span className="text-[10px] text-zinc-400 font-medium">{item.orderCount} ordered</span>
+                        )}
+                        {item.averageRating && item.averageRating > 0 && (
+                          <span className="text-[10px] text-zinc-400 font-medium">⭐ {item.averageRating.toFixed(1)}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </motion.button>
               );
@@ -825,6 +898,32 @@ export default function OrderPage({
           </button>
         </div>
       )}
+
+      {/* ── "Item Added" Confirmation Toast ──────────────────── */}
+      <AnimatePresence>
+        {showAddedConfirm && (
+          <motion.div
+            initial={{ opacity: 0, y: 60, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] bg-zinc-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 max-w-sm"
+          >
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shrink-0">
+              <FaCheck className="text-sm" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold truncate">{showAddedConfirm} added!</p>
+              <p className="text-xs text-zinc-400">Tap below to view cart or keep browsing</p>
+            </div>
+            <button
+              onClick={() => { setShowAddedConfirm(null); setCartOpen(true); }}
+              className="shrink-0 px-3 py-1.5 bg-white text-black rounded-lg text-xs font-bold hover:bg-zinc-100 transition-all"
+            >
+              View Cart
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Item Detail Modal ────────────────────────────────── */}
       <AnimatePresence>

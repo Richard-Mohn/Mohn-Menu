@@ -164,6 +164,10 @@ export interface MohnMenuBusiness {
     };
     /** Allow this business to request drivers from the MohnMenu marketplace */
     useMarketplaceDrivers?: boolean;
+    /** Show order stats (order count, ratings) on the public menu page */
+    showMenuStats?: boolean;
+    /** Enable inventory / stock tracking for menu items */
+    inventoryEnabled?: boolean;
   };
   
   // Features (determined by tier, but can be customized)
@@ -362,6 +366,22 @@ export interface MenuItem {
   sortOrder?: number;
   createdAt?: string;
   updatedAt?: string;
+
+  // ── Inventory / Stock ──
+  /** Current stock quantity. null/undefined = unlimited (no stock tracking). 0 = sold out. */
+  stock?: number | null;
+  /** Whether stock tracking is enabled for this item (e.g., bakery: 24 cupcakes) */
+  trackStock?: boolean;
+  /** Low stock warning threshold */
+  lowStockThreshold?: number;
+
+  // ── Order Stats (aggregated) ──
+  /** Total times this item has been ordered */
+  orderCount?: number;
+  /** Average customer rating (1-5) */
+  averageRating?: number;
+  /** Number of reviews */
+  reviewCount?: number;
 }
 
 export interface MenuItemOption {

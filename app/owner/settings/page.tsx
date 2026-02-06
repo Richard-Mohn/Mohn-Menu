@@ -21,6 +21,8 @@ export default function OwnerSettingsPage() {
     logoUrl: currentBusiness?.settings?.logoUrl || '',
     cashPaymentsEnabled: currentBusiness?.settings?.cashPaymentsEnabled ?? true,
     useMarketplaceDrivers: currentBusiness?.settings?.useMarketplaceDrivers ?? false,
+    showMenuStats: currentBusiness?.settings?.showMenuStats ?? false,
+    inventoryEnabled: currentBusiness?.settings?.inventoryEnabled ?? false,
   });
 
   const [thirdPartyDelivery, setThirdPartyDelivery] = useState({
@@ -77,6 +79,8 @@ export default function OwnerSettingsPage() {
           },
           cashPaymentsEnabled: settings.cashPaymentsEnabled,
           useMarketplaceDrivers: settings.useMarketplaceDrivers,
+          showMenuStats: settings.showMenuStats,
+          inventoryEnabled: settings.inventoryEnabled,
           thirdPartyDelivery: {
             enabled: thirdPartyDelivery.enabled,
             uberEatsUrl: thirdPartyDelivery.uberEatsUrl || null,
@@ -268,6 +272,46 @@ export default function OwnerSettingsPage() {
             <span
               className={`absolute top-0.5 w-6 h-6 bg-white rounded-full transition-transform shadow-sm ${
                 settings.cashPaymentsEnabled ? 'translate-x-5.5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </label>
+
+        <label className="flex items-center justify-between cursor-pointer">
+          <div>
+            <span className="font-bold text-black text-sm">Show Order Stats on Menu</span>
+            <p className="text-xs text-zinc-400">Display order counts and ratings on your public menu page</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSettings(p => ({ ...p, showMenuStats: !p.showMenuStats }))}
+            className={`w-12 h-7 rounded-full transition-colors relative ${
+              settings.showMenuStats ? 'bg-emerald-500' : 'bg-zinc-200'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 w-6 h-6 bg-white rounded-full transition-transform shadow-sm ${
+                settings.showMenuStats ? 'translate-x-5.5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </label>
+
+        <label className="flex items-center justify-between cursor-pointer">
+          <div>
+            <span className="font-bold text-black text-sm">Enable Inventory Tracking</span>
+            <p className="text-xs text-zinc-400">Track stock for items like baked goods, daily specials, etc.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSettings(p => ({ ...p, inventoryEnabled: !p.inventoryEnabled }))}
+            className={`w-12 h-7 rounded-full transition-colors relative ${
+              settings.inventoryEnabled ? 'bg-emerald-500' : 'bg-zinc-200'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 w-6 h-6 bg-white rounded-full transition-transform shadow-sm ${
+                settings.inventoryEnabled ? 'translate-x-5.5' : 'translate-x-0.5'
               }`}
             />
           </button>

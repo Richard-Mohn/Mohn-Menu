@@ -26,6 +26,10 @@ interface MenuItem {
   spicy?: boolean;
   popular?: boolean;
   options?: { name: string; choices: { label: string; price: number }[] }[];
+  trackStock?: boolean;
+  stock?: number | null;
+  lowStockThreshold?: number;
+  orderCount?: number;
 }
 
 const DEFAULT_CATEGORIES = [
@@ -62,6 +66,9 @@ export default function OwnerMenuPage() {
     available: true,
     spicy: false,
     popular: false,
+    trackStock: false,
+    stock: '',
+    lowStockThreshold: '5',
   });
 
   const fetchItems = useCallback(async () => {
@@ -101,6 +108,9 @@ export default function OwnerMenuPage() {
         available: item.available !== false,
         spicy: item.spicy || false,
         popular: item.popular || false,
+        trackStock: item.trackStock || false,
+        stock: item.stock?.toString() || '',
+        lowStockThreshold: (item.lowStockThreshold || 5).toString(),
       });
     } else {
       setEditingItem(null);
@@ -113,6 +123,9 @@ export default function OwnerMenuPage() {
         available: true,
         spicy: false,
         popular: false,
+        trackStock: false,
+        stock: '',
+        lowStockThreshold: '5',
       });
     }
     setShowEditor(true);
@@ -142,6 +155,9 @@ export default function OwnerMenuPage() {
         available: form.available,
         spicy: form.spicy,
         popular: form.popular,
+        trackStock: form.trackStock,
+        stock: form.trackStock ? (form.stock ? parseInt(form.stock) : 0) : null,
+        lowStockThreshold: form.trackStock ? parseInt(form.lowStockThreshold) || 5 : null,
         updatedAt: new Date().toISOString(),
       };
 
@@ -306,16 +322,34 @@ export default function OwnerMenuPage() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between mt-3">
-                      <button
-                        onClick={() => toggleAvailability(item)}
-                        className={`px-3 py-1 rounded-full text-[10px] font-bold transition-colors ${
-                          item.available
-                            ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                            : 'bg-red-100 text-red-600 hover:bg-red-200'
-                        }`}
-                      >
-                        {item.available ? '● Available' : '● Unavailable'}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggleAvailability(item)}
+                          className={`px-3 py-1 rounded-full text-[10px] font-bold transition-colors ${
+                            item.available
+                              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                              : 'bg-red-100 text-red-600 hover:bg-red-200'
+                          }`}
+                        >
+                          {item.available ? '● Available' : '● Unavailable'}
+                        </button>
+                        {item.trackStock && item.stock !== undefined && item.stock !== null && (
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            item.stock <= 0
+                              ? 'bg-red-100 text-red-600'
+                              : item.stock <= (item.lowStockThreshold || 5)
+                                ? 'bg-orange-100 text-orange-600'
+                                : 'bg-blue-100 text-blue-600'
+                          }`}>
+                            {item.stock <= 0 ? 'Sold Out' : `${item.stock} in stock`}
+                          </span>
+                        )}
+                        {item.orderCount && item.orderCount > 0 && (
+                          <span className="text-[10px] text-zinc-400 font-medium">
+                            {item.orderCount} orders
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => openEditor(item)}
@@ -440,6 +474,58 @@ export default function OwnerMenuPage() {
                   className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
                   placeholder="https://..."
                 />
+              </div>
+
+              {/* ── Stock / Inventory Tracking ── */}
+              <div className="border border-zinc-200 rounded-xl p-4 space-y-3">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div>
+                    <span className="font-bold text-black text-sm">Track Stock</span>
+                    <p className="text-xs text-zinc-400 mt-0.5">Enable for limited-quantity items (bakery, specials, etc.)</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setForm(prev => ({ ...prev, trackStock: !prev.trackStock }))}
+                    className={`w-11 h-6 rounded-full transition-colors relative ${
+                      form.trackStock ? 'bg-black' : 'bg-zinc-200'
+                    }`}
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform shadow-sm ${
+                      form.trackStock ? 'translate-x-5.5' : 'translate-x-0.5'
+                    }`} />
+                  </button>
+                </label>
+
+                {form.trackStock && (
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div>
+                      <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-1.5">
+                        Current Stock
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={form.stock}
+                        onChange={e => setForm(prev => ({ ...prev, stock: e.target.value }))}
+                        className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
+                        placeholder="24"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-1.5">
+                        Low Stock Alert
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={form.lowStockThreshold}
+                        onChange={e => setForm(prev => ({ ...prev, lowStockThreshold: e.target.value }))}
+                        className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
+                        placeholder="5"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Toggles */}

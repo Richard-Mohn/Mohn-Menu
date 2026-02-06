@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, type MouseEvent as ReactMouseEvent } from 'react';
 import { collection, query, getDocs, addDoc, orderBy, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { MohnMenuBusiness } from '@/lib/types';
@@ -198,6 +198,28 @@ export default function QuickOrderModal({
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('');
   const [search, setSearch] = useState('');
+
+  // ── Desktop drag-scroll for category pills ──
+  const catScrollRef = useRef<HTMLDivElement>(null);
+  const catDragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, hasDragged: false });
+  const handleCatMouseDown = (e: ReactMouseEvent) => {
+    const el = catScrollRef.current; if (!el) return;
+    catDragState.current = { isDown: true, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft, hasDragged: false };
+    el.style.cursor = 'grabbing';
+  };
+  const handleCatMouseUp = () => {
+    catDragState.current.isDown = false;
+    if (catScrollRef.current) catScrollRef.current.style.cursor = 'grab';
+  };
+  const handleCatMouseMove = (e: ReactMouseEvent) => {
+    if (!catDragState.current.isDown) return;
+    e.preventDefault();
+    const el = catScrollRef.current; if (!el) return;
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - catDragState.current.startX) * 1.5;
+    if (Math.abs(walk) > 3) catDragState.current.hasDragged = true;
+    el.scrollLeft = catDragState.current.scrollLeft - walk;
+  };
   const [cart, setCart] = useState<CartItem[]>([]);
 
   // Item detail
@@ -680,12 +702,20 @@ export default function QuickOrderModal({
                   {!search && (
                     <div className="px-4 pb-2">
                       <div className="relative">
-                        <div className="overflow-x-auto scrollbar-none scroll-smooth" style={{ scrollbarWidth: 'none' }}>
+                        <div
+                          ref={catScrollRef}
+                          className="overflow-x-auto scrollbar-none scroll-smooth cursor-grab select-none"
+                          style={{ scrollbarWidth: 'none' }}
+                          onMouseDown={handleCatMouseDown}
+                          onMouseUp={handleCatMouseUp}
+                          onMouseLeave={handleCatMouseUp}
+                          onMouseMove={handleCatMouseMove}
+                        >
                           <div className="flex gap-2 pb-1">
                             {categories.map((cat, i) => (
                               <button
                                 key={cat}
-                                onClick={() => setActiveCategory(cat)}
+                                onClick={() => { if (!catDragState.current.hasDragged) setActiveCategory(cat); }}
                                 className={`shrink-0 px-4 py-2 rounded-xl text-[11px] font-bold transition-all duration-300 whitespace-nowrap border ${
                                   activeCategory === cat
                                     ? 'bg-gradient-to-r from-zinc-900 to-zinc-800 text-white border-zinc-700 shadow-lg shadow-black/20 scale-[1.02]'
