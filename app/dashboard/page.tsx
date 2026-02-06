@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function DashboardRouter() {
-  const { user, loclUser, loading } = useAuth();
+  const { user, MohnMenuUser, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -17,25 +17,29 @@ export default function DashboardRouter() {
     }
 
     // Route based on user role
-    if (loclUser?.role === 'owner' || loclUser?.role === 'manager') {
+    if (MohnMenuUser?.role === 'owner' || MohnMenuUser?.role === 'manager') {
       router.push('/owner');
-    } else if (loclUser?.role === 'driver_inhouse' || loclUser?.role === 'driver_marketplace') {
+    } else if (MohnMenuUser?.role === 'driver_inhouse' || MohnMenuUser?.role === 'driver_marketplace') {
       router.push('/driver');
-    } else if (loclUser?.role === 'customer') {
-      router.push('/customer');
-    } else if (loclUser?.role === 'admin') {
+    } else if (MohnMenuUser?.role === 'customer') {
+      // Customers with no business should go to onboarding
+      if (!MohnMenuUser.businessIds || MohnMenuUser.businessIds.length === 0) {
+        router.push('/onboarding');
+      } else {
+        router.push('/customer');
+      }
+    } else if (MohnMenuUser?.role === 'admin') {
       router.push('/admin');
     } else {
-      // Default to customer if role is not set
-      router.push('/customer');
+      router.push('/onboarding');
     }
-  }, [user, loclUser, loading, router]);
+  }, [user, MohnMenuUser, loading, router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-900">
+    <div className="flex items-center justify-center min-h-screen bg-zinc-50">
       <div className="text-center">
-        <div className="animate-spin inline-flex items-center justify-center w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full mb-4"></div>
-        <p className="text-lg font-semibold text-zinc-600 dark:text-zinc-400">
+        <div className="animate-spin inline-flex items-center justify-center w-12 h-12 border-4 border-orange-200 border-t-orange-600 rounded-full mb-4"></div>
+        <p className="text-lg font-semibold text-zinc-600">
           Redirecting you to your dashboard...
         </p>
       </div>

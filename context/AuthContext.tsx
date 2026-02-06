@@ -12,13 +12,13 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import type { LOCLUser, LOCLBusiness } from '@/lib/types';
+import type { MohnMenuUser, MohnMenuBusiness } from '@/lib/types';
 
 interface AuthContextType {
   user: User | null;
-  loclUser: LOCLUser | null;
-  currentBusiness: LOCLBusiness | null;
-  userBusinesses: LOCLBusiness[];
+  MohnMenuUser: MohnMenuUser | null;
+  currentBusiness: MohnMenuBusiness | null;
+  userBusinesses: MohnMenuBusiness[];
   loading: boolean;
   error: string | null;
   
@@ -42,9 +42,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loclUser, setLoclUser] = useState<LOCLUser | null>(null);
-  const [currentBusiness, setCurrentBusiness] = useState<LOCLBusiness | null>(null);
-  const [userBusinesses, setUserBusinesses] = useState<LOCLBusiness[]>([]);
+  const [MohnMenuUser, setMohnMenuUser] = useState<MohnMenuUser | null>(null);
+  const [currentBusiness, setCurrentBusiness] = useState<MohnMenuBusiness | null>(null);
+  const [userBusinesses, setUserBusinesses] = useState<MohnMenuBusiness[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,24 +62,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (firebaseUser) {
           setUser(firebaseUser);
 
-          // Fetch LOCL user profile
+          // Fetch MohnMenu user profile
           const userDocRef = doc(db, 'users', firebaseUser.uid);
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
-            const userData = userDocSnap.data() as LOCLUser;
-            setLoclUser(userData);
+            const userData = userDocSnap.data() as MohnMenuUser;
+            setMohnMenuUser(userData);
 
             // Fetch all businesses this user is associated with
             if (userData.businessIds && userData.businessIds.length > 0) {
-              const businesses: LOCLBusiness[] = [];
+              const businesses: MohnMenuBusiness[] = [];
 
               for (const businessId of userData.businessIds) {
                 const businessDocRef = doc(db, 'businesses', businessId);
                 const businessDocSnap = await getDoc(businessDocRef);
 
                 if (businessDocSnap.exists()) {
-                  businesses.push(businessDocSnap.data() as LOCLBusiness);
+                  businesses.push(businessDocSnap.data() as MohnMenuBusiness);
                 }
               }
 
@@ -95,13 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
             }
           } else {
-            // User logged in but no LOCL profile - shouldn't happen in normal flow
-            console.warn('User authenticated but no LOCL profile found');
+            // User logged in but no MohnMenu profile - shouldn't happen in normal flow
+            console.warn('User authenticated but no MohnMenu profile found');
           }
         } else {
           // User logged out
           setUser(null);
-          setLoclUser(null);
+          setMohnMenuUser(null);
           setCurrentBusiness(null);
           setUserBusinesses([]);
         }
@@ -136,8 +136,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       const result = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Create LOCL user profile
-      const loclUserData: LOCLUser = {
+      // Create MohnMenu user profile
+      const MohnMenuUserData: MohnMenuUser = {
         uid: result.user.uid,
         email,
         displayName: email,
@@ -149,7 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Save to Firestore
       const userDocRef = doc(db, 'users', result.user.uid);
-      await setDoc(userDocRef, loclUserData);
+      await setDoc(userDocRef, MohnMenuUserData);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Signup failed';
       setError(message);
@@ -162,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       await signOut(auth);
       setUser(null);
-      setLoclUser(null);
+      setMohnMenuUser(null);
       setCurrentBusiness(null);
       setUserBusinesses([]);
     } catch (err) {
@@ -181,14 +181,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setCurrentBusiness(business);
 
-      // Update active business in LOCL user profile
-      if (loclUser && user) {
-        const updatedUser: LOCLUser = {
-          ...loclUser,
+      // Update active business in MohnMenu user profile
+      if (MohnMenuUser && user) {
+        const updatedUser: MohnMenuUser = {
+          ...MohnMenuUser,
           activeBusinessId: businessId,
           updatedAt: new Date().toISOString(),
         };
-        setLoclUser(updatedUser);
+        setMohnMenuUser(updatedUser);
         
         // Update in Firestore
         const userDocRef = doc(db, 'users', user.uid);
@@ -201,18 +201,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isOwner = () => loclUser?.role === 'owner';
-  const isManager = () => loclUser?.role === 'manager';
+  const isOwner = () => MohnMenuUser?.role === 'owner';
+  const isManager = () => MohnMenuUser?.role === 'manager';
   const isDriver = () => 
-    loclUser?.role === 'driver_inhouse' || loclUser?.role === 'driver_marketplace';
-  const isCustomer = () => loclUser?.role === 'customer';
-  const isAdmin = () => loclUser?.role === 'admin';
+    MohnMenuUser?.role === 'driver_inhouse' || MohnMenuUser?.role === 'driver_marketplace';
+  const isCustomer = () => MohnMenuUser?.role === 'customer';
+  const isAdmin = () => MohnMenuUser?.role === 'admin';
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        loclUser,
+        MohnMenuUser,
         currentBusiness,
         userBusinesses,
         loading,

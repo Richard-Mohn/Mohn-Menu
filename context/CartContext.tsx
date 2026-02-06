@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
 // Define the shape of a cart item
 export interface CartItem {
@@ -21,10 +21,17 @@ interface CartContextType {
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  setBusinessId: (id: string) => void;
 }
 
 // Create the context with a default undefined value
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+const CART_STORAGE_PREFIX = 'mohn_cart_';
+
+function getCartKey(businessId?: string): string {
+  return businessId ? `${CART_STORAGE_PREFIX}${businessId}` : 'mohn_cart';
+}
 
 // Cart Provider component
 interface CartProviderProps {
@@ -32,7 +39,43 @@ interface CartProviderProps {
 }
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [activeBusinessId, setActiveBusinessId] = useState<string>('');
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem(getCartKey());
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // When businessId changes, load that business's cart
+  const setBusinessId = (id: string) => {
+    if (id === activeBusinessId) return;
+    // Save current cart
+    if (activeBusinessId) {
+      try { localStorage.setItem(getCartKey(activeBusinessId), JSON.stringify(cart)); } catch {}
+    }
+    setActiveBusinessId(id);
+    // Load new business cart
+    try {
+      const stored = localStorage.getItem(getCartKey(id));
+      setCart(stored ? JSON.parse(stored) : []);
+    } catch {
+      setCart([]);
+    }
+  };
+
+  // Persist cart to localStorage whenever it changes
+  useEffect(() => {
+    const key = activeBusinessId ? getCartKey(activeBusinessId) : getCartKey();
+    try {
+      localStorage.setItem(key, JSON.stringify(cart));
+    } catch {
+      // localStorage might be full or disabled
+    }
+  }, [cart, activeBusinessId]);
 
   const addToCart = (item: CartItem) => {
     setCart(prevCart => {
@@ -86,6 +129,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         clearCart,
         getTotalItems,
         getTotalPrice,
+        setBusinessId,
       }}
     >
       {children}

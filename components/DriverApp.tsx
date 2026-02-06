@@ -99,7 +99,7 @@ export const DriverApp: React.FC<DriverAppProps> = ({
     <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
       {/* Driver Info */}
       <div className="mb-6 pb-6 border-b">
-        <h1 className="text-2xl font-bold text-gray-800">LOCL Driver</h1>
+        <h1 className="text-2xl font-bold text-gray-800">MohnMenu Driver</h1>
         <p className="text-gray-600">Welcome, {driverName}</p>
         <div className="mt-4 flex items-center justify-between">
           <div>

@@ -11,8 +11,8 @@ import AnimatedBackground from "@/components/AnimatedBackground";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LOCL | Mobile Ordering Platform",
-  description: "LOCL: Empowering local businesses with simple, affordable mobile ordering.",
+  title: "MohnMenu | Commission-Free Ordering for Local Businesses",
+  description: "MohnMenu: The ordering platform that gives local restaurants and stores 100% of their revenue. Cards, crypto, cash — zero commissions.",
 };
 
 export default function RootLayout({

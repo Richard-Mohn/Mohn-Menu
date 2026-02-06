@@ -1,233 +1,392 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FaChartLine, FaUsers, FaBoxOpen, FaCog, FaSignOutAlt, FaPlus, FaClipboardList, FaTruck, FaUtensils, FaGift, FaBullhorn } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import {
+  FaGlobe,
+  FaClipboardList,
+  FaUtensils,
+  FaChartLine,
+  FaTruck,
+  FaCog,
+  FaExternalLinkAlt,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaCreditCard,
+} from 'react-icons/fa';
 
-interface BusinessStatProps {
-  title: string;
-  value: string;
-  change: string;
-  delay: number;
+interface RecentOrder {
+  id: string;
+  customerName: string;
+  total: number;
+  status: string;
+  createdAt: string;
 }
-
-const BusinessStat = ({ title, value, change, delay }: BusinessStatProps) => (
-  <motion.div
-    className="bg-white p-8 rounded-[2.5rem] shadow-[0_10px_50px_rgba(0,0,0,0.02)] border border-zinc-100"
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay }}
-  >
-    <p className="text-xs font-black uppercase tracking-widest text-zinc-400 mb-2">{title}</p>
-    <p className={`text-4xl font-black text-black mb-2`}>{value}</p>
-    <p className={`text-xs font-bold ${change.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>
-      {change} <span className="text-zinc-300 ml-1">vs last month</span>
-    </p>
-  </motion.div>
-);
-
-interface NavCardProps {
-  icon: any;
-  title: string;
-  description: string;
-  href: string;
-  delay: number;
-  colorClass: string;
-}
-
-const NavCard = ({ icon: Icon, title, description, href, delay, colorClass }: NavCardProps) => (
-  <Link href={href} className="group">
-    <motion.div
-      className="bg-white p-10 rounded-[3rem] border border-zinc-100 group-hover:border-black transition-all duration-500 h-full flex flex-col items-start"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
-    >
-      <div className={`w-14 h-14 bg-zinc-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-black group-hover:text-white transition-colors duration-500 ${colorClass}`}>
-        <Icon className="text-2xl" />
-      </div>
-      <h3 className="text-xl font-bold text-black mb-2">{title}</h3>
-      <p className="text-zinc-500 text-sm font-medium leading-relaxed">{description}</p>
-    </motion.div>
-  </Link>
-);
 
 export default function OwnerDashboard() {
-  const { user, loclUser, currentBusiness, loading, isOwner, logout } = useAuth();
-  const router = useRouter();
+  const { currentBusiness } = useAuth();
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [orderCount, setOrderCount] = useState(0);
+  const [menuItemCount, setMenuItemCount] = useState(0);
 
   useEffect(() => {
-    if (!loading && (!user || !isOwner())) {
-      router.push('/login');
-    }
-  }, [user, loading, isOwner, router]);
+    if (!currentBusiness) return;
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-white text-zinc-400 font-bold">
-        Loading Command Center...
-      </div>
-    );
-  }
+    // Fetch recent orders
+    const fetchOrders = async () => {
+      try {
+        const ordersRef = collection(db, 'businesses', currentBusiness.businessId, 'orders');
+        const q = query(ordersRef, orderBy('createdAt', 'desc'), limit(5));
+        const snap = await getDocs(q);
+        const orders: RecentOrder[] = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          orders.push({
+            id: doc.id,
+            customerName: d.customerName || d.customer?.name || 'Customer',
+            total: d.total || d.pricing?.total || 0,
+            status: d.status || 'pending',
+            createdAt: d.createdAt || '',
+          });
+        });
+        setRecentOrders(orders);
+      } catch {
+        /* silently fail */
+      }
+    };
+
+    // Fetch total order count
+    const fetchOrderCount = async () => {
+      try {
+        const ordersRef = collection(db, 'businesses', currentBusiness.businessId, 'orders');
+        const snap = await getDocs(ordersRef);
+        setOrderCount(snap.size);
+      } catch {
+        /* silently fail */
+      }
+    };
+
+    // Fetch menu item count
+    const fetchMenuCount = async () => {
+      try {
+        const menuRef = collection(db, 'businesses', currentBusiness.businessId, 'menuItems');
+        const snap = await getDocs(menuRef);
+        setMenuItemCount(snap.size);
+      } catch {
+        /* silently fail */
+      }
+    };
+
+    fetchOrders();
+    fetchOrderCount();
+    fetchMenuCount();
+  }, [currentBusiness]);
 
   if (!currentBusiness) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-center max-w-md px-4">
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center max-w-md">
           <h1 className="text-4xl font-black text-black mb-4 tracking-tighter">No Business Found</h1>
-          <p className="text-zinc-500 font-medium mb-8">You haven't set up your local business profile yet. Let's get you started.</p>
-          <Link href="/onboarding">
-            <button className="px-10 py-4 bg-black text-white rounded-full font-bold shadow-xl hover:bg-zinc-800 transition-all">
-              Create Your Business
-            </button>
+          <p className="text-zinc-500 font-medium mb-8">
+            You haven&apos;t set up your business profile yet.
+          </p>
+          <Link
+            href="/register"
+            className="px-10 py-4 bg-black text-white rounded-full font-bold shadow-xl hover:bg-zinc-800 transition-all inline-block"
+          >
+            Create Your Business
           </Link>
         </div>
       </div>
     );
   }
 
+  const websiteLive = currentBusiness.website?.setupComplete === true;
+  const websiteUrl = `/${currentBusiness.slug || currentBusiness.businessId}`;
+  const totalSeoPages =
+    1 +
+    (currentBusiness.website?.selectedServices?.length || 0) +
+    (currentBusiness.website?.selectedCities?.length || 0) +
+    2;
+
+  const statusColor = (s: string) => {
+    if (s === 'delivered' || s === 'completed') return 'bg-emerald-100 text-emerald-700';
+    if (s === 'preparing' || s === 'ready') return 'bg-amber-100 text-amber-700';
+    if (s === 'cancelled') return 'bg-red-100 text-red-700';
+    return 'bg-zinc-100 text-zinc-600';
+  };
+
   return (
-    <div className="min-h-screen bg-transparent pt-32 pb-20 px-4">
-      <div className="container mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-16 gap-8">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-black mb-3">
-              Command Center<span className="text-indigo-600">.</span>
-            </h1>
-            <p className="text-xl font-medium text-zinc-500">
-              Managing <span className="text-black font-bold">{currentBusiness.name}</span>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-black tracking-tight text-black">
+          Dashboard
+        </h1>
+        <p className="text-zinc-400 font-medium mt-1">
+          {currentBusiness.name} — {currentBusiness.city}, {currentBusiness.state}
+        </p>
+      </div>
+
+      {/* ── Website Status Banner ───────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`rounded-2xl p-6 border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+          websiteLive
+            ? 'bg-emerald-50 border-emerald-200'
+            : 'bg-amber-50 border-amber-200'
+        }`}
+      >
+        <div className="flex items-center gap-4">
+          {websiteLive ? (
+            <FaCheckCircle className="text-emerald-500 text-xl shrink-0" />
+          ) : (
+            <FaExclamationTriangle className="text-amber-500 text-xl shrink-0" />
+          )}
+          <div>
+            <p className={`font-bold ${websiteLive ? 'text-emerald-800' : 'text-amber-800'}`}>
+              {websiteLive ? 'Your Website is Live' : 'Website Not Published Yet'}
             </p>
-          </motion.div>
-          
-          <div className="flex flex-wrap gap-4">
-            <Link href="/owner/orders">
-              <button className="flex items-center gap-3 px-8 py-4 bg-black text-white rounded-full font-bold shadow-xl hover:bg-zinc-800 transition-all active:scale-95">
-                <FaPlus className="text-sm" />
-                New Order
-              </button>
-            </Link>
-            <button 
-              onClick={() => logout()}
-              className="flex items-center gap-3 px-8 py-4 bg-zinc-50 text-zinc-600 rounded-full font-bold hover:bg-red-50 hover:text-red-600 transition-all"
+            <p className={`text-sm ${websiteLive ? 'text-emerald-600' : 'text-amber-600'}`}>
+              {websiteLive
+                ? `${totalSeoPages} SEO pages are published and being indexed by Google.`
+                : 'Set up your SEO website to start getting organic traffic.'}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {websiteLive && (
+            <a
+              href={websiteUrl}
+              target="_blank"
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-full text-sm font-bold hover:bg-emerald-700 transition-colors"
             >
-              <FaSignOutAlt />
-              Logout
-            </button>
-          </div>
+              <FaExternalLinkAlt className="text-xs" />
+              View Live Site
+            </a>
+          )}
+          <Link
+            href="/owner/website"
+            className={`px-5 py-2.5 rounded-full text-sm font-bold transition-colors ${
+              websiteLive
+                ? 'bg-white text-emerald-700 hover:bg-emerald-100'
+                : 'bg-amber-600 text-white hover:bg-amber-700'
+            }`}
+          >
+            {websiteLive ? 'Edit Website' : 'Build Website →'}
+          </Link>
         </div>
+      </motion.div>
 
-        {/* Intelligence Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          <BusinessStat 
-            title="Monthly Revenue" 
-            value={`${(currentBusiness.monthlyRevenue || 0).toLocaleString()}`} 
-            change="+12.5%" 
-            delay={0.1} 
-          />
-          <BusinessStat 
-            title="Total Orders" 
-            value={(currentBusiness.totalOrders || 0).toLocaleString()} 
-            change="+8.2%" 
-            delay={0.2} 
-          />
-          <BusinessStat 
-            title="Total Customers" 
-            value={(currentBusiness.customerCount || 0).toLocaleString()} 
-            change="+4.1%" 
-            delay={0.3} 
-          />
-          <BusinessStat 
-            title="Active Drivers" 
-            value={`${currentBusiness.inHouseDriverIds?.length || 0}/${currentBusiness.maxInhouseDrivers}`} 
-            change="+1" 
-            delay={0.4} 
-          />
-        </div>
-
-        {/* Action Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          <NavCard 
-            icon={FaClipboardList} 
-            title="Manage Orders" 
-            description="Fulfill active orders and update statuses."
-            href="/owner/orders"
-            delay={0.1}
-            colorClass="text-indigo-600"
-          />
-          <NavCard 
-            icon={FaTruck} 
-            title="Fleet Control" 
-            description="Monitor and assign in-house delivery drivers."
-            href="/owner/drivers"
-            delay={0.2}
-            colorClass="text-blue-600"
-          />
-          <NavCard 
-            icon={FaUtensils} 
-            title="Menu Editor" 
-            description="Update items, prices, and availability."
-            href="/owner/menu"
-            delay={0.3}
-            colorClass="text-emerald-600"
-          />
-          <NavCard 
-            icon={FaChartLine} 
-            title="Insights" 
-            description="Deep dive into your sales and customer data."
-            href="/owner/analytics"
-            delay={0.4}
-            colorClass="text-purple-600"
-          />
-          <NavCard 
-            icon={FaGift} 
-            title="Loyalty" 
-            description="Manage points and customer retention."
-            href="/owner/loyalty"
-            delay={0.5}
-            colorClass="text-pink-600"
-          />
-          <NavCard 
-            icon={FaBullhorn} 
-            title="Marketing" 
-            description="Email and SMS campaign management."
-            href="/owner/marketing"
-            delay={0.6}
-            colorClass="text-orange-600"
-          />
-        </div>
-
-        {/* System Status */}
-        <motion.div 
-          className="bg-white rounded-[3rem] border border-zinc-100 p-12 shadow-[0_10px_50px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-center gap-8"
-          initial={{ opacity: 0, y: 20 }}
+      {/* ── Stripe Connect Banner ──────────────────────────── */}
+      {!currentBusiness.stripeAccountId && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
+          className="rounded-2xl p-6 border bg-gradient-to-r from-orange-50 to-red-50 border-orange-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
-          <div className="flex gap-12 flex-wrap justify-center md:justify-start">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-black uppercase tracking-widest text-zinc-400">Order System: Online</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-black uppercase tracking-widest text-zinc-400">Payments: Active</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-black uppercase tracking-widest text-zinc-400">GPS Fleet: Tracking</span>
+          <div className="flex items-center gap-4">
+            <FaCreditCard className="text-orange-500 text-xl shrink-0" />
+            <div>
+              <p className="font-bold text-orange-800">Accept Card Payments</p>
+              <p className="text-sm text-orange-600">
+                Connect your Stripe account to receive card payments directly. Takes 5 minutes. You&apos;re currently only accepting cash orders.
+              </p>
             </div>
           </div>
-          <Link href="/owner/settings">
-            <button className="flex items-center gap-3 px-8 py-4 bg-zinc-50 text-zinc-900 rounded-full font-bold hover:bg-black hover:text-white transition-all">
-              <FaCog className="text-sm" />
-              Settings
-            </button>
+          <Link
+            href="/owner/drivers"
+            className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full text-sm font-bold hover:shadow-lg hover:shadow-orange-500/20 transition-all whitespace-nowrap"
+          >
+            Connect Stripe →
           </Link>
         </motion.div>
+      )}
+
+      {/* ── Quick Stats ─────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            label: 'Total Orders',
+            value: orderCount.toLocaleString(),
+            sub: 'all time',
+            color: 'text-orange-600',
+          },
+          {
+            label: 'Menu Items',
+            value: menuItemCount.toLocaleString(),
+            sub: 'active items',
+            color: 'text-emerald-600',
+          },
+          {
+            label: 'SEO Pages',
+            value: websiteLive ? totalSeoPages.toLocaleString() : '—',
+            sub: websiteLive ? 'indexed' : 'not published',
+            color: 'text-orange-500',
+          },
+          {
+            label: 'Drivers',
+            value: `${currentBusiness.inHouseDriverIds?.length || 0}`,
+            sub: `of ${currentBusiness.maxInhouseDrivers} max`,
+            color: 'text-orange-400',
+          },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="bg-white rounded-2xl p-5 border border-zinc-100"
+          >
+            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2">
+              {stat.label}
+            </p>
+            <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
+            <p className="text-xs text-zinc-400 mt-1">{stat.sub}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ── Quick Actions ───────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        {[
+          {
+            icon: FaGlobe,
+            title: 'Website',
+            desc: websiteLive ? `${totalSeoPages} pages live` : 'Set up your site',
+            href: '/owner/website',
+            accent: 'group-hover:bg-orange-600',
+          },
+          {
+            icon: FaClipboardList,
+            title: 'Orders',
+            desc: `${orderCount} total orders`,
+            href: '/owner/orders',
+            accent: 'group-hover:bg-orange-500',
+          },
+          {
+            icon: FaUtensils,
+            title: 'Menu',
+            desc: `${menuItemCount} items`,
+            href: '/owner/menu',
+            accent: 'group-hover:bg-emerald-600',
+          },
+          {
+            icon: FaTruck,
+            title: 'Drivers',
+            desc: `${currentBusiness.inHouseDriverIds?.length || 0} active`,
+            href: '/owner/drivers',
+            accent: 'group-hover:bg-orange-400',
+          },
+          {
+            icon: FaChartLine,
+            title: 'Analytics',
+            desc: 'Revenue & insights',
+            href: '/owner/analytics',
+            accent: 'group-hover:bg-red-500',
+          },
+          {
+            icon: FaCog,
+            title: 'Settings',
+            desc: 'Business config',
+            href: '/owner/settings',
+            accent: 'group-hover:bg-zinc-800',
+          },
+        ].map((action, i) => {
+          const Icon = action.icon;
+          return (
+            <Link key={action.href} href={action.href} className="group">
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.05 }}
+                className="bg-white rounded-2xl p-6 border border-zinc-100 hover:border-zinc-300 transition-all h-full"
+              >
+                <div
+                  className={`w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center mb-4 group-hover:text-white transition-colors ${action.accent}`}
+                >
+                  <Icon className="text-sm" />
+                </div>
+                <h3 className="font-bold text-black text-sm">{action.title}</h3>
+                <p className="text-zinc-400 text-xs mt-1">{action.desc}</p>
+              </motion.div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* ── Recent Orders ───────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-zinc-100 overflow-hidden">
+        <div className="flex items-center justify-between p-5 border-b border-zinc-100">
+          <h2 className="font-bold text-black">Recent Orders</h2>
+          <Link href="/owner/orders" className="text-xs font-bold text-orange-600 hover:underline">
+            View All →
+          </Link>
+        </div>
+
+        {recentOrders.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-zinc-400 font-medium text-sm">No orders yet.</p>
+            <p className="text-zinc-400 text-xs mt-1">
+              Orders will appear here once customers start ordering.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-zinc-50">
+            {recentOrders.map(order => (
+              <div key={order.id} className="flex items-center justify-between px-5 py-4 hover:bg-zinc-50 transition-colors">
+                <div>
+                  <p className="font-bold text-black text-sm">{order.customerName}</p>
+                  <p className="text-xs text-zinc-400">
+                    #{order.id.slice(-6).toUpperCase()}
+                    {order.createdAt && (
+                      <> · {new Date(order.createdAt).toLocaleDateString()}</>
+                    )}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusColor(order.status)}`}>
+                    {order.status}
+                  </span>
+                  <span className="font-bold text-black text-sm">
+                    ${order.total.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── System Status ───────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-zinc-100 p-5 flex flex-wrap items-center gap-8">
+        {[
+          {
+            label: 'Ordering',
+            active: currentBusiness.settings?.orderingEnabled !== false,
+          },
+          { label: 'Website', active: websiteLive },
+          {
+            label: 'Payments',
+            active: true, // Stripe always connected
+          },
+        ].map(sys => (
+          <div key={sys.label} className="flex items-center gap-2">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                sys.active ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-300'
+              }`}
+            />
+            <span className="text-xs font-black uppercase tracking-widest text-zinc-400">
+              {sys.label}: {sys.active ? 'Active' : 'Inactive'}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

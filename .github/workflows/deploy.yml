@@ -1,4 +1,4 @@
-name: Deploy to Firebase
+name: Build & Test
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     
     steps:
@@ -47,18 +47,7 @@ jobs:
         STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         NEXT_PUBLIC_OWNER_SECRET_CODE: ${{ secrets.OWNER_SECRET_CODE }}
     
-    - name: Install Firebase CLI
-      run: npm install -g firebase-tools
-    
-    - name: Deploy to Firebase App Hosting
-      run: |
-        firebase deploy \
-          --project chinese-system \
-          --token "${{ secrets.FIREBASE_TOKEN }}" \
-          --force
-      working-directory: restaurant-app
-    
-    - name: Comment deployment status on PR
+    - name: Comment build status on PR
       if: github.event_name == 'pull_request' && always()
       uses: actions/github-script@v7
       with:
@@ -68,5 +57,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `${status} Deployment ${context.job.status === 'success' ? 'succeeded' : 'failed'}!\n\nView logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+            body: `${status} Build ${context.job.status === 'success' ? 'succeeded' : 'failed'}!\n\n💡 Firebase App Hosting will auto-deploy this commit to:\n- **Backend:** ordersystem--chinese-system.us-east4.hosted.app\n- **Custom Domain:** mohnmenu.com\n\n[View workflow logs](${context.payload.pull_request.html_url})`
           })

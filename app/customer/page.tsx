@@ -52,7 +52,7 @@ const NavCard = ({ icon: Icon, title, description, href, delay }: NavCardProps) 
 );
 
 export default function CustomerDashboard() {
-  const { user, loclUser, loading, isCustomer, logout } = useAuth();
+  const { user, MohnMenuUser, loading, isCustomer, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function CustomerDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="text-lg font-bold text-zinc-400 animate-pulse">Loading LOCL...</div>
+        <div className="text-lg font-bold text-zinc-400 animate-pulse">Loading MohnMenu...</div>
       </div>
     );
   }
@@ -79,10 +79,10 @@ export default function CustomerDashboard() {
             animate={{ opacity: 1, x: 0 }}
           >
             <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-black mb-2">
-              My Orders<span className="text-indigo-600">.</span>
+              My Orders<span className="text-orange-600">.</span>
             </h1>
             <p className="text-lg font-medium text-zinc-500">
-              Welcome back, {loclUser?.displayName?.split(' ')[0] || 'User'}
+              Welcome back, {MohnMenuUser?.displayName?.split(' ')[0] || 'User'}
             </p>
           </motion.div>
           <motion.button
@@ -98,10 +98,10 @@ export default function CustomerDashboard() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
-          <StatCard title="Loyalty Points" value="450" color="text-indigo-600" delay={0.1} />
+          <StatCard title="Loyalty Points" value="450" color="text-orange-600" delay={0.1} />
           <StatCard title="Total Orders" value="18" color="text-emerald-600" delay={0.2} />
           <StatCard title="Total Spent" value="$342" color="text-black" delay={0.3} />
-          <StatCard title="Membership" value="6mo" color="text-blue-600" delay={0.4} />
+          <StatCard title="Membership" value="6mo" color="text-orange-500" delay={0.4} />
         </div>
 
         {/* Navigation Grid */}

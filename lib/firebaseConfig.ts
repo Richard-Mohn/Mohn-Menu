@@ -2,6 +2,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyBlt04c0VTS56mjbwFBdHUF-w0xtZV1i58",
   authDomain: "chinese-system.firebaseapp.com",
+  databaseURL: "https://chinese-system-default-rtdb.firebaseio.com",
   projectId: "chinese-system",
   storageBucket: "chinese-system.firebasestorage.app",
   messagingSenderId: "554772130088",

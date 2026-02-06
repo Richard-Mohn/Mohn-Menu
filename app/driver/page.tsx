@@ -52,7 +52,7 @@ const NavCard = ({ icon: Icon, title, description, href, delay }: NavCardProps) 
 );
 
 export default function DriverDashboard() {
-  const { user, loclUser, loading, isDriver, logout } = useAuth();
+  const { user, MohnMenuUser, loading, isDriver, logout } = useAuth();
   const router = useRouter();
   const [driverStatus, setDriverStatus] = useState<'offline' | 'online' | 'on_delivery' | 'on_break'>('offline');
 
@@ -80,7 +80,7 @@ export default function DriverDashboard() {
               Fleet View<span className="text-blue-600">.</span>
             </h1>
             <p className="text-lg font-medium text-zinc-500">
-              Active Driver: <span className="text-black font-bold">{loclUser?.displayName || user?.email}</span>
+              Active Driver: <span className="text-black font-bold">{MohnMenuUser?.displayName || user?.email}</span>
             </p>
           </motion.div>
           <motion.button
