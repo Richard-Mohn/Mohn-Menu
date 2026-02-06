@@ -74,7 +74,7 @@ export default function Home() {
             </motion.div>
 
             <motion.h1
-              className="text-[3.25rem] md:text-[8rem] font-black mb-4 md:mb-6 tracking-tighter text-zinc-900 leading-[0.85]"
+              className="text-[3.5rem] md:text-[8rem] font-black mb-4 md:mb-6 tracking-tighter text-zinc-900 leading-[0.85]"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
@@ -83,7 +83,7 @@ export default function Home() {
             </motion.h1>
 
             <motion.p
-              className="text-lg md:text-2xl text-zinc-500 max-w-2xl mx-auto mb-3 md:mb-4 leading-relaxed font-medium"
+              className="text-xl md:text-2xl text-zinc-500 max-w-2xl mx-auto mb-3 md:mb-4 leading-relaxed font-medium"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
@@ -143,7 +143,7 @@ export default function Home() {
       </section>
 
       {/* ━━━ CORE FEATURES GRID (6 cards) ━━━ */}
-      <section className="py-28 px-4">
+      <section className="py-16 md:py-28 px-4">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             className="text-center mb-16"
