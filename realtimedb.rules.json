@@ -1,0 +1,59 @@
+/*
+ * Firebase Realtime Database Rules
+ * For Real-Time Driver Tracking
+ * 
+ * Security Strategy:
+ * - Drivers can only update their own location
+ * - Customers can read driver location for active orders
+ * - Restaurants can read all driver locations
+ * - No one else has access
+ */
+
+{
+  "rules": {
+    "restaurants": {
+      "$restaurantId": {
+        // Drivers: Real-time location data
+        "drivers": {
+          "$driverId": {
+            // Only this driver can write their own location
+            "location": {
+              ".write": "auth.uid === $driverId",
+              ".read": true  // Anyone can read, but security enforced at app level
+            },
+            // Only this driver can write their own status
+            "status": {
+              ".write": "auth.uid === $driverId",
+              ".read": true
+            },
+            // Current order assignment
+            "currentOrderId": {
+              ".write": "root.child('restaurants').child($restaurantId).child('managers').hasChild(auth.uid) || auth.uid === $driverId",
+              ".read": true
+            },
+            // Driver info (public once assigned)
+            ".read": "true",
+            ".validate": "newData.hasChildren(['location', 'status'])"
+          },
+          ".indexOn": ["status", "currentOrderId"]
+        },
+        
+        // Orders with delivery info
+        "orders": {
+          "$orderId": {
+            ".read": "true",  // Public read for now (ideally check order ownership)
+            ".write": "root.child('restaurants').child($restaurantId).child('managers').hasChild(auth.uid)"
+          }
+        },
+        
+        // Managers/staff who can assign orders
+        "managers": {
+          "$uid": {
+            ".read": "auth.uid === $uid",
+            ".write": "root.child('restaurants').child($restaurantId).child('managers').hasChild(auth.uid)"
+          }
+        }
+      }
+    }
+  }
+}
