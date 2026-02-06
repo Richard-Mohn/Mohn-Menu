@@ -16,13 +16,17 @@ import {
   FaBars,
   FaTimes,
   FaMapMarkerAlt,
+  FaDesktop,
+  FaVideo,
 } from 'react-icons/fa';
 
 const NAV_ITEMS = [
   { href: '/owner', label: 'Dashboard', icon: FaHome },
   { href: '/owner/website', label: 'Website', icon: FaGlobe },
   { href: '/owner/orders', label: 'Orders', icon: FaClipboardList },
+  { href: '/owner/kds', label: 'Kitchen Display', icon: FaDesktop },
   { href: '/owner/menu', label: 'Menu', icon: FaUtensils },
+  { href: '/owner/chef-cam', label: 'Chef Cam', icon: FaVideo },
   { href: '/owner/drivers', label: 'Drivers', icon: FaTruck },
   { href: '/owner/dispatch', label: 'Dispatch', icon: FaMapMarkerAlt },
   { href: '/owner/analytics', label: 'Analytics', icon: FaChartLine },

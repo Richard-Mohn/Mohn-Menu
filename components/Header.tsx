@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   FaSignOutAlt, FaChevronDown, FaBitcoin, FaMapMarkerAlt, FaVideo,
-  FaGoogle, FaShieldAlt, FaBrain, FaUtensils, FaCoffee
+  FaShoppingCart, FaUtensils, FaCoffee, FaDesktop, FaTruck,
+  FaClipboardList, FaGlobe
 } from 'react-icons/fa';
 import AuthModal from '@/components/AuthModal';
 
@@ -18,12 +19,13 @@ const solutions = [
 ];
 
 const featureItems = [
-  { href: '/for-restaurants', icon: FaMapMarkerAlt, label: 'GPS Fleet Tracking', desc: 'Sub-second driver location updates' },
-  { href: '/for-restaurants', icon: FaVideo, label: 'Live Chef Cam', desc: 'HD kitchen streaming for customers' },
-  { href: '/for-restaurants', icon: FaBitcoin, label: 'Crypto Payments', desc: 'BTC, ETH, LTC, DOGE — Cash App ready' },
-  { href: '/for-restaurants', icon: FaGoogle, label: 'Order with Google', desc: 'Native Google Search & Maps ordering' },
-  { href: '/for-restaurants', icon: FaShieldAlt, label: 'Fraud Protection', desc: 'Chargeback coverage on every order' },
-  { href: '/for-restaurants', icon: FaBrain, label: 'Smart Insights', desc: 'AI-powered analytics & forecasting' },
+  { href: '/features/online-ordering', icon: FaShoppingCart, label: 'Online Ordering', desc: 'Card, crypto & cash — zero commission' },
+  { href: '/features/gps-tracking', icon: FaMapMarkerAlt, label: 'GPS Fleet Tracking', desc: 'Sub-second driver location updates' },
+  { href: '/features/kitchen-display', icon: FaDesktop, label: 'Kitchen Display (KDS)', desc: 'Multi-station tablet workflow' },
+  { href: '/features/crypto-payments', icon: FaBitcoin, label: 'Crypto Payments', desc: 'BTC, ETH, SOL + 5 more with QR codes' },
+  { href: '/features/delivery-management', icon: FaTruck, label: 'Delivery Management', desc: 'Drivers, dispatch & Stripe payouts' },
+  { href: '/features/real-time-orders', icon: FaClipboardList, label: 'Real-Time Orders', desc: 'Audio alerts & instant status tracking' },
+  { href: '/features/white-label-website', icon: FaGlobe, label: 'White-Label Website', desc: 'Branded storefront with SEO built in' },
 ];
 
 /* ─── Dropdown wrapper ─── */
@@ -207,6 +209,14 @@ const Header = () => {
               <Link href="/for-convenience-stores" onClick={closeMobile} className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-zinc-50">
                 <FaCoffee className="text-blue-500" /><span className="font-bold text-black">Retail &amp; Stores</span>
               </Link>
+
+              <div className="h-px bg-zinc-100 my-4" />
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3 ml-1">Features</p>
+              {featureItems.map(f => (
+                <Link key={f.label} href={f.href} onClick={closeMobile} className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-zinc-50">
+                  <f.icon className="text-orange-500" /><span className="font-bold text-black">{f.label}</span>
+                </Link>
+              ))}
 
               <div className="h-px bg-zinc-100 my-4" />
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-3 ml-1">Platform</p>
