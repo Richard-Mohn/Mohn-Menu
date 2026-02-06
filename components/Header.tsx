@@ -167,6 +167,12 @@ const Header = () => {
             </div>
           )}
 
+          {!user && (
+            <Link href="/login" className="sm:hidden px-4 py-2 text-sm font-bold text-zinc-600 hover:text-black transition-colors">
+              Sign In
+            </Link>
+          )}
+
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="lg:hidden p-2 text-black"

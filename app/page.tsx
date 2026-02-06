@@ -48,8 +48,8 @@ const StatBlock = ({ value, label, delay }: StatBlockProps) => (
     viewport={{ once: true }}
     transition={{ duration: 0.4, delay }}
   >
-    <div className="text-4xl md:text-5xl font-black tracking-tight mb-2">{value}</div>
-    <div className="text-sm font-bold text-zinc-400 uppercase tracking-wider">{label}</div>
+    <div className="text-2xl md:text-5xl font-black tracking-tight mb-1 md:mb-2">{value}</div>
+    <div className="text-[10px] md:text-sm font-bold text-zinc-400 uppercase tracking-wider">{label}</div>
   </motion.div>
 );
 
@@ -60,7 +60,7 @@ export default function Home() {
     <div className="min-h-screen bg-white selection:bg-black selection:text-white">
 
       {/* ━━━ HERO ━━━ */}
-      <section className="relative pt-32 md:pt-40 pb-24 px-4 overflow-hidden">
+      <section className="relative pt-24 md:pt-40 pb-12 md:pb-24 px-4 overflow-hidden">
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center mb-8">
             <motion.div
@@ -74,7 +74,7 @@ export default function Home() {
             </motion.div>
 
             <motion.h1
-              className="text-6xl md:text-[8rem] font-black mb-6 tracking-tighter text-zinc-900 leading-[0.85]"
+              className="text-5xl md:text-[8rem] font-black mb-4 md:mb-6 tracking-tighter text-zinc-900 leading-[0.85]"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
@@ -83,7 +83,7 @@ export default function Home() {
             </motion.h1>
 
             <motion.p
-              className="text-xl md:text-2xl text-zinc-500 max-w-2xl mx-auto mb-4 leading-relaxed font-medium"
+              className="text-lg md:text-2xl text-zinc-500 max-w-2xl mx-auto mb-3 md:mb-4 leading-relaxed font-medium"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
@@ -93,7 +93,7 @@ export default function Home() {
             </motion.p>
 
             <motion.p
-              className="text-base text-zinc-400 max-w-xl mx-auto mb-12 leading-relaxed"
+              className="text-sm md:text-base text-zinc-400 max-w-xl mx-auto mb-8 md:mb-12 leading-relaxed hidden md:block"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
@@ -108,13 +108,13 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <Link href="/register" className="group px-10 py-5 bg-black text-white rounded-full font-bold text-lg flex items-center gap-3 hover:bg-zinc-800 transition-all active:scale-95 shadow-2xl shadow-black/20">
+              <Link href="/register" className="group px-8 py-4 md:px-10 md:py-5 bg-black text-white rounded-full font-bold text-base md:text-lg flex items-center gap-3 hover:bg-zinc-800 transition-all active:scale-95 shadow-2xl shadow-black/20">
                 Launch Your Store
                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/login"
-                className="px-10 py-5 bg-white text-zinc-900 border-2 border-zinc-200 rounded-full font-bold text-lg hover:border-zinc-900 transition-all"
+                className="px-8 py-4 md:px-10 md:py-5 bg-white text-zinc-900 border-2 border-zinc-200 rounded-full font-bold text-base md:text-lg hover:border-zinc-900 transition-all"
               >
                 Sign In
               </Link>
@@ -131,13 +131,13 @@ export default function Home() {
       </section>
 
       {/* ━━━ STATS STRIP ━━━ */}
-      <section className="py-16 border-y border-zinc-100">
+      <section className="py-10 md:py-16 border-y border-zinc-100">
         <div className="container mx-auto max-w-5xl px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-4 gap-4 md:gap-8">
             <StatBlock value="0%" label="Commission" delay={0.1} />
-            <StatBlock value="<10m" label="Setup Time" delay={0.2} />
-            <StatBlock value="BTC+" label="Crypto Ready" delay={0.3} />
-            <StatBlock value="24/7" label="Auto Ordering" delay={0.4} />
+            <StatBlock value="<10m" label="Setup" delay={0.2} />
+            <StatBlock value="BTC+" label="Crypto" delay={0.3} />
+            <StatBlock value="24/7" label="Ordering" delay={0.4} />
           </div>
         </div>
       </section>
