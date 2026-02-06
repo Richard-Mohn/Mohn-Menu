@@ -22,12 +22,7 @@ export default function DashboardRouter() {
     } else if (MohnMenuUser?.role === 'driver_inhouse' || MohnMenuUser?.role === 'driver_marketplace') {
       router.push('/driver');
     } else if (MohnMenuUser?.role === 'customer') {
-      // Customers with no business should go to onboarding
-      if (!MohnMenuUser.businessIds || MohnMenuUser.businessIds.length === 0) {
-        router.push('/onboarding');
-      } else {
-        router.push('/customer');
-      }
+      router.push('/customer');
     } else if (MohnMenuUser?.role === 'admin') {
       router.push('/admin');
     } else {

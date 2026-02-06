@@ -110,7 +110,7 @@ export default function CustomerDashboard() {
             icon={FaPizzaSlice} 
             title="Browse Menu" 
             description="Order from your favorite local shops."
-            href="/menu"
+            href="/"
             delay={0.1}
           />
           <NavCard 

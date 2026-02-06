@@ -47,7 +47,7 @@ export default function RegisterPage() {
 
     try {
       await signUpWithEmail(email, password);
-      router.push('/onboarding');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -73,10 +73,10 @@ export default function RegisterPage() {
         <div className="bg-white rounded-[3rem] shadow-[0_20px_100px_rgba(0,0,0,0.05)] border border-zinc-100 p-12">
           <div className="text-center mb-10">
             <h1 className="text-4xl font-black text-black mb-3">
-              Join MohnMenu<span className="text-orange-500">.</span>
+              Start Your Business<span className="text-orange-500">.</span>
             </h1>
             <p className="text-zinc-500 font-medium">
-              Start your journey to better margins.
+              Create an account to set up your restaurant or store.
             </p>
           </div>
 

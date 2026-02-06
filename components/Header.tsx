@@ -9,6 +9,7 @@ import {
   FaSignOutAlt, FaChevronDown, FaBitcoin, FaMapMarkerAlt, FaVideo,
   FaGoogle, FaShieldAlt, FaBrain, FaUtensils, FaCoffee
 } from 'react-icons/fa';
+import AuthModal from '@/components/AuthModal';
 
 /* ─── Mega-menu data ─── */
 const solutions = [
@@ -87,6 +88,7 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [authModal, setAuthModal] = useState<{ open: boolean; tab: 'login' | 'signup' }>({ open: false, tab: 'login' });
 
   useEffect(() => {
     const h = () => setIsScrolled(window.scrollY > 10);
@@ -154,23 +156,22 @@ const Header = () => {
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-3">
-              <Link href="/login" className="px-5 py-2.5 text-sm font-bold text-zinc-600 hover:text-black transition-colors">Sign In</Link>
-              <Link href="/register">
-                <motion.span
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-full text-sm font-bold shadow-lg shadow-orange-500/20 block"
-                >
-                  Get Started Free
-                </motion.span>
-              </Link>
+              <button onClick={() => setAuthModal({ open: true, tab: 'login' })} className="px-5 py-2.5 text-sm font-bold text-zinc-600 hover:text-black transition-colors">Sign In</button>
+              <motion.button
+                onClick={() => setAuthModal({ open: true, tab: 'signup' })}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-full text-sm font-bold shadow-lg shadow-orange-500/20"
+              >
+                Get Started Free
+              </motion.button>
             </div>
           )}
 
           {!user && (
-            <Link href="/login" className="sm:hidden px-4 py-2 text-sm font-bold text-zinc-600 hover:text-black transition-colors">
+            <button onClick={() => setAuthModal({ open: true, tab: 'login' })} className="sm:hidden px-4 py-2 text-sm font-bold text-zinc-600 hover:text-black transition-colors">
               Sign In
-            </Link>
+            </button>
           )}
 
           <button
@@ -218,14 +219,21 @@ const Header = () => {
               <div className="h-px bg-zinc-100 my-4" />
               {!user && (
                 <>
-                  <Link href="/login" onClick={closeMobile} className="px-3 py-2.5 font-bold text-zinc-500">Sign In</Link>
-                  <Link href="/register" onClick={closeMobile} className="mt-2 block text-center py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-full font-bold shadow-lg">Get Started Free</Link>
+                  <button onClick={() => { closeMobile(); setAuthModal({ open: true, tab: 'login' }); }} className="px-3 py-2.5 font-bold text-zinc-500 text-left">Sign In</button>
+                  <button onClick={() => { closeMobile(); setAuthModal({ open: true, tab: 'signup' }); }} className="mt-2 block w-full text-center py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-full font-bold shadow-lg">Get Started Free</button>
                 </>
               )}
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModal.open}
+        onClose={() => setAuthModal({ open: false, tab: 'login' })}
+        defaultTab={authModal.tab}
+      />
     </motion.header>
   );
 };
