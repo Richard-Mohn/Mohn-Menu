@@ -1,0 +1,33 @@
+{
+  "name": "mohnmenu",
+  "version": "1.0.0",
+  "description": "Commission-free local business ordering platform",
+  "private": true,
+  "workspaces": [
+    "restaurant-app",
+    "functions"
+  ],
+  "scripts": {
+    "dev": "cd restaurant-app && npm run dev",
+    "build": "cd restaurant-app && npm run build",
+    "start": "cd restaurant-app && npm run start",
+    "lint": "cd restaurant-app && npm run lint",
+    "type-check": "cd restaurant-app && npm run type-check",
+    "seed": "cd restaurant-app && npm run seed",
+    "deploy": "firebase deploy"
+  },
+  "keywords": [
+    "ordering",
+    "restaurant",
+    "delivery",
+    "local-business",
+    "crypto",
+    "stripe"
+  ],
+  "author": "Richard",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

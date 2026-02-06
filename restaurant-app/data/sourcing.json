@@ -1,0 +1,44 @@
+{
+  "ingredients": [
+    {
+      "id": "bok-choy",
+      "name": "Organic Bok Choy",
+      "source": "Harmony Valley Farm",
+      "location": "Viroqua, WI",
+      "quality_notes": "Triple-washed, pesticide-free, harvested within 48 hours of delivery.",
+      "certifications": ["USDA Organic", "GlobalG.A.P."]
+    },
+    {
+      "id": "tofu",
+      "name": "Artisan Non-GMO Tofu",
+      "source": "Superior Tofu Co.",
+      "location": "Vancouver, BC",
+      "quality_notes": "Made from heritage soybeans using traditional stone-grinding methods.",
+      "certifications": ["Non-GMO Project Verified", "Kosher"]
+    },
+    {
+      "id": "chicken",
+      "name": "Pasture-Raised Chicken",
+      "source": "Miller's Amish Country Poultry",
+      "location": "Orland, IN",
+      "quality_notes": "Antibiotic-free, vegetable-fed, raised in stress-free environments.",
+      "certifications": ["Certified Humane", "No Antibiotics Ever"]
+    },
+    {
+      "id": "soy-sauce",
+      "name": "Aged Brewed Soy Sauce",
+      "source": "Wan Ja Shan",
+      "location": "Hudson Valley, NY",
+      "quality_notes": "Naturally brewed for 6 months using only four ingredients: water, soy, wheat, salt.",
+      "certifications": ["Naturally Brewed"]
+    },
+    {
+      "id": "spices",
+      "name": "Chef's Signature Sichuan Peppercorns",
+      "source": "Direct Import - Hanyuan County",
+      "location": "Sichuan, China",
+      "quality_notes": "Grade A 'Dahongpao' variety, known for intense citrus notes and numbing effect.",
+      "certifications": ["Direct Trade"]
+    }
+  ]
+}
