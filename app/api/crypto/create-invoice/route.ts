@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       ipnCallbackUrl,
       successUrl,
       cancelUrl,
-      isFeePaidByUser: false,
+      isFeePaidByUser: true,
     });
 
     return NextResponse.json({

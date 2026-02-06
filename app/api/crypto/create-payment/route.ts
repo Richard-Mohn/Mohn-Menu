@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       orderId: `${orderId}__${businessId}`, // Encode both IDs for webhook
       orderDescription: businessName || businessId,
       ipnCallbackUrl,
-      isFeePaidByUser: false,
+      isFeePaidByUser: true,
     });
 
     return NextResponse.json({

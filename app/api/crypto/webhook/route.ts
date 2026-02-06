@@ -13,7 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyIpnSignature, isPaymentFinished, isPaymentFailed } from '@/lib/nowpayments';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -120,12 +120,10 @@ export async function POST(request: NextRequest) {
           createdAt: new Date().toISOString(),
         });
 
-        // Update aggregate balance on business doc
+        // Update aggregate balance on business doc (atomic increment)
         const bizRef = adminDb.doc(`businesses/${businessId}`);
-        const bizSnap = await bizRef.get();
-        const currentBalance = (bizSnap.data()?.cryptoBalance as number) || 0;
         await bizRef.update({
-          cryptoBalance: currentBalance + priceAmountUsd,
+          cryptoBalance: FieldValue.increment(priceAmountUsd),
           updatedAt: new Date().toISOString(),
         });
       }

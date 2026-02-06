@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { collection, query, where, getDocs, addDoc, orderBy, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { MohnMenuBusiness } from '@/lib/types';
@@ -19,12 +19,60 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaShoppingCart, FaPlus, FaMinus, FaTrash, FaTimes, FaCheck,
   FaMotorcycle, FaStore, FaSearch, FaFire, FaArrowLeft, FaCreditCard, FaLock,
+  FaBitcoin, FaCopy,
 } from 'react-icons/fa';
 import { loadStripe, type Stripe, type StripeElements } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { QRCodeSVG } from 'qrcode.react';
 
 // ─── Stripe setup ──────────────────────────────────────────
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+
+// ─── Supported Crypto Options ──────────────────────────────
+
+interface CryptoOption {
+  id: string;
+  name: string;
+  symbol: string;
+  icon: string;
+  color: string;
+}
+
+const SUPPORTED_CRYPTOS: CryptoOption[] = [
+  { id: 'btc',        name: 'Bitcoin',       symbol: 'BTC',  icon: '₿', color: '#F7931A' },
+  { id: 'eth',        name: 'Ethereum',      symbol: 'ETH',  icon: 'Ξ', color: '#627EEA' },
+  { id: 'usdttrc20',  name: 'USDT (TRC20)',  symbol: 'USDT', icon: '₮', color: '#26A17B' },
+  { id: 'sol',        name: 'Solana',        symbol: 'SOL',  icon: '◎', color: '#9945FF' },
+  { id: 'usdcsol',    name: 'USDC (SOL)',    symbol: 'USDC', icon: '$', color: '#2775CA' },
+  { id: 'ltc',        name: 'Litecoin',      symbol: 'LTC',  icon: 'Ł', color: '#BFBBBB' },
+  { id: 'doge',       name: 'Dogecoin',      symbol: 'DOGE', icon: 'Ð', color: '#C2A633' },
+  { id: 'trx',        name: 'TRON',          symbol: 'TRX',  icon: '⟁', color: '#FF0013' },
+];
+
+interface CryptoPaymentData {
+  paymentId: string;
+  payAddress: string;
+  payAmount: number;
+  payCurrency: string;
+  priceAmount: number;
+  priceCurrency: string;
+  payinExtraId: string | null;
+  expirationEstimate: string;
+  status: string;
+}
+
+function buildCryptoUri(address: string, amount: number, currency: string): string {
+  const id = currency.toLowerCase();
+  if (id === 'btc') return `bitcoin:${address}?amount=${amount}`;
+  if (id === 'ltc') return `litecoin:${address}?amount=${amount}`;
+  if (id === 'doge') return `dogecoin:${address}?amount=${amount}`;
+  if (id === 'eth') return `ethereum:${address}?value=${amount}`;
+  return address;
+}
+
+function hasCryptoUriScheme(currency: string): boolean {
+  return ['btc', 'ltc', 'doge', 'eth'].includes(currency.toLowerCase());
+}
 
 // ─── Menu item shape (from Firestore or static menu.json) ──────
 interface RawMenuItem {
@@ -168,7 +216,7 @@ export default function OrderPage({
   const [phone, setPhone] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [deliveryInstructions, setDeliveryInstructions] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'crypto' | 'cash'>('card');
   const [tip, setTip] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -179,6 +227,14 @@ export default function OrderPage({
   const [clientSecret, setClientSecret] = useState('');
   const [paymentError, setPaymentError] = useState('');
   const [pendingOrderId, setPendingOrderId] = useState('');
+
+  // Crypto payment state
+  const [selectedCrypto, setSelectedCrypto] = useState<CryptoOption>(SUPPORTED_CRYPTOS[0]);
+  const [cryptoPayment, setCryptoPayment] = useState<CryptoPaymentData | null>(null);
+  const [cryptoStatus, setCryptoStatus] = useState<string>('');
+  const [cryptoCopied, setCryptoCopied] = useState(false);
+  const [showCryptoModal, setShowCryptoModal] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { cart, addToCart, removeFromCart, updateQuantity, clearCart, getTotalItems, getTotalPrice } = useCart();
 
@@ -362,6 +418,45 @@ export default function OrderPage({
         return; // Don't complete yet — wait for Stripe form submission
       }
 
+      // For crypto payment — create order, then get deposit address
+      if (paymentMethod === 'crypto') {
+        const orderData = { ...buildOrderData(), paymentStatus: 'awaiting_crypto' };
+        const docRef = await addDoc(
+          collection(db, 'businesses', business.businessId, 'orders'),
+          orderData
+        );
+
+        await createTrackingLink(docRef.id, business.businessId);
+
+        const res = await fetch('/api/crypto/create-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: docRef.id,
+            businessId: business.businessId,
+            amount: parseFloat(total.toFixed(2)),
+            payCurrency: selectedCrypto.id,
+            businessName: business.name,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Crypto payment setup failed');
+
+        await updateDoc(doc(db, 'businesses', business.businessId, 'orders', docRef.id), {
+          'cryptoPayment.paymentId': data.paymentId,
+          'cryptoPayment.payAddress': data.payAddress,
+          'cryptoPayment.payAmount': data.payAmount,
+          'cryptoPayment.payCurrency': data.payCurrency,
+        });
+
+        setPendingOrderId(docRef.id);
+        setCryptoPayment(data as CryptoPaymentData);
+        setCryptoStatus(data.status || 'waiting');
+        setShowCryptoModal(true);
+        setSubmitting(false);
+        return; // Don't complete yet — wait for crypto payment
+      }
+
       // For cash payment — just place the order
       const orderData = buildOrderData();
       const docRef = await addDoc(
@@ -406,6 +501,75 @@ export default function OrderPage({
       clearCart();
     }
   };
+
+  // ── Handle successful crypto payment ──
+  const handleCryptoComplete = async () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+    if (!business) return;
+    try {
+      await updateDoc(doc(db, 'businesses', business.businessId, 'orders', pendingOrderId), {
+        paymentStatus: 'paid_crypto',
+        status: 'confirmed',
+        updatedAt: new Date().toISOString(),
+      });
+    } catch {
+      /* payment confirmed on-chain — still show success */
+    }
+    setOrderId(pendingOrderId);
+    setOrderPlaced(true);
+    setShowCryptoModal(false);
+    setCryptoPayment(null);
+    setCryptoStatus('');
+    clearCart();
+  };
+
+  // Copy crypto address to clipboard
+  const copyAddress = useCallback(async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCryptoCopied(true);
+      setTimeout(() => setCryptoCopied(false), 2000);
+    } catch { /* fallback */ }
+  }, []);
+
+  // ── Crypto payment polling ──
+  useEffect(() => {
+    if (!showCryptoModal || paymentMethod !== 'crypto' || !cryptoPayment?.paymentId) return;
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/crypto/create-payment?paymentId=${cryptoPayment.paymentId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const status = data.status as string;
+        setCryptoStatus(status);
+
+        if (status === 'finished') {
+          handleCryptoComplete();
+        } else if (['failed', 'expired', 'refunded'].includes(status)) {
+          setCryptoStatus(status);
+          if (pollRef.current) {
+            clearInterval(pollRef.current);
+            pollRef.current = null;
+          }
+        }
+      } catch { /* poll silently */ }
+    };
+
+    poll();
+    pollRef.current = setInterval(poll, 8000);
+
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showCryptoModal, paymentMethod, cryptoPayment?.paymentId]);
 
   // ─── Loading ──────────────────────────────────────────────
 
@@ -977,14 +1141,24 @@ export default function OrderPage({
                 <div>
                   <h3 className="text-sm font-black text-black mb-3">Payment</h3>
                   {(business?.settings?.cashPaymentsEnabled !== false) ? (
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <button
                         onClick={() => setPaymentMethod('card')}
-                        className={`py-3 rounded-xl font-bold text-sm transition-all ${
+                        className={`py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 ${
                           paymentMethod === 'card' ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
                         }`}
                       >
-                        💳 Pay Online
+                        <FaCreditCard className="text-xs" /> Card
+                      </button>
+                      <button
+                        onClick={() => setPaymentMethod('crypto')}
+                        className={`py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 ${
+                          paymentMethod === 'crypto'
+                            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                            : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                        }`}
+                      >
+                        <FaBitcoin className="text-xs" /> Crypto
                       </button>
                       <button
                         onClick={() => setPaymentMethod('cash')}
@@ -996,11 +1170,66 @@ export default function OrderPage({
                       </button>
                     </div>
                   ) : (
-                    <div>
-                      <div className="py-3 rounded-xl font-bold text-sm bg-black text-white text-center">
-                        💳 Pay Online
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setPaymentMethod('card')}
+                        className={`py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 ${
+                          paymentMethod === 'card' ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                        }`}
+                      >
+                        <FaCreditCard className="text-xs" /> Card
+                      </button>
+                      <button
+                        onClick={() => setPaymentMethod('crypto')}
+                        className={`py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-1.5 ${
+                          paymentMethod === 'crypto'
+                            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                            : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                        }`}
+                      >
+                        <FaBitcoin className="text-xs" /> Crypto
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Crypto coin selector */}
+                  {paymentMethod === 'crypto' && (
+                    <div className="mt-3 space-y-3">
+                      <p className="text-xs font-black uppercase tracking-widest text-zinc-400">
+                        Select Coin
+                      </p>
+                      <div className="grid grid-cols-4 gap-2">
+                        {SUPPORTED_CRYPTOS.map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => setSelectedCrypto(c)}
+                            className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center gap-1 ${
+                              selectedCrypto.id === c.id
+                                ? 'ring-2 ring-offset-1 text-white'
+                                : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100'
+                            }`}
+                            style={
+                              selectedCrypto.id === c.id
+                                ? { backgroundColor: c.color, '--tw-ring-color': c.color } as React.CSSProperties
+                                : undefined
+                            }
+                          >
+                            <span className="text-base leading-none">{c.icon}</span>
+                            <span>{c.symbol}</span>
+                          </button>
+                        ))}
                       </div>
-                      <p className="text-xs text-zinc-400 mt-2">This restaurant requires prepayment by card.</p>
+                      <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 rounded-xl p-3">
+                        <p className="text-xs font-bold text-orange-700">
+                          ⚡ Pay with {selectedCrypto.name} —{' '}
+                          <span className="text-orange-500">0% platform fees · Instant settlement</span>
+                        </p>
+                        {selectedCrypto.id === 'btc' && (
+                          <p className="text-[10px] text-orange-500/80 mt-1">
+                            💲 Cash App users can scan the QR to pay with BTC
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1057,9 +1286,19 @@ export default function OrderPage({
                 <button
                   onClick={handlePlaceOrder}
                   disabled={submitting || !customerName || !email || !phone || (orderType === 'delivery' && !deliveryAddress)}
-                  className="w-full py-4 bg-black text-white rounded-2xl font-bold text-sm hover:bg-zinc-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  className={`w-full py-4 text-white rounded-2xl font-bold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                    paymentMethod === 'crypto'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600'
+                      : 'bg-black hover:bg-zinc-800'
+                  }`}
                 >
-                  {submitting ? 'Placing Order...' : paymentMethod === 'card' ? `Pay $${total.toFixed(2)}` : `Place Order — $${total.toFixed(2)}`}
+                  {submitting
+                    ? 'Placing Order...'
+                    : paymentMethod === 'card'
+                    ? `Pay $${total.toFixed(2)}`
+                    : paymentMethod === 'crypto'
+                    ? <><FaBitcoin className="text-xs" /> Pay ${total.toFixed(2)} with {selectedCrypto.symbol}</>
+                    : `Place Order — $${total.toFixed(2)}`}
                 </button>
               </div>
             </motion.div>
@@ -1111,6 +1350,171 @@ export default function OrderPage({
                 <button
                   onClick={() => setShowStripeForm(false)}
                   className="w-full mt-3 py-3 text-zinc-500 text-sm font-medium hover:text-zinc-700 transition-colors"
+                >
+                  Cancel Payment
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Crypto Payment Modal ─────────────────────────────── */}
+      <AnimatePresence>
+        {showCryptoModal && cryptoPayment && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center px-4"
+          >
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              className="bg-white w-full max-w-md rounded-3xl overflow-hidden"
+            >
+              {/* Header */}
+              <div className="p-6 border-b border-zinc-200 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg font-bold"
+                    style={{ backgroundColor: selectedCrypto.color }}
+                  >
+                    {selectedCrypto.icon}
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black">Pay with {selectedCrypto.name}</h2>
+                    <p className="text-sm text-zinc-500">${total.toFixed(2)} — Order #{pendingOrderId.slice(0, 8).toUpperCase()}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6">
+                {/* Dark deposit card */}
+                <div className="bg-zinc-900 rounded-2xl p-5 space-y-4">
+                  {/* Status indicator */}
+                  <div className="flex items-center justify-center gap-2">
+                    {['waiting', 'confirming', 'confirmed', 'sending'].includes(cryptoStatus) ? (
+                      <>
+                        <div
+                          className="w-2.5 h-2.5 rounded-full animate-pulse"
+                          style={{ backgroundColor: selectedCrypto.color }}
+                        />
+                        <span className="text-white/70 text-xs font-bold uppercase tracking-wider">
+                          {cryptoStatus === 'waiting'
+                            ? 'Awaiting Payment'
+                            : cryptoStatus === 'confirming'
+                            ? 'Confirming...'
+                            : cryptoStatus === 'confirmed'
+                            ? 'Confirmed — Processing'
+                            : 'Sending...'}
+                        </span>
+                      </>
+                    ) : cryptoStatus === 'finished' ? (
+                      <>
+                        <FaCheck className="text-emerald-400 text-sm" />
+                        <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                          Payment Complete
+                        </span>
+                      </>
+                    ) : ['failed', 'expired'].includes(cryptoStatus) ? (
+                      <span className="text-red-400 text-xs font-bold uppercase tracking-wider">
+                        {cryptoStatus === 'expired' ? 'Payment Expired' : 'Payment Failed'}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/* QR Code */}
+                  <div className="flex justify-center">
+                    <div className="bg-white p-3 rounded-xl">
+                      <QRCodeSVG
+                        value={buildCryptoUri(
+                          cryptoPayment.payAddress,
+                          cryptoPayment.payAmount,
+                          cryptoPayment.payCurrency
+                        )}
+                        size={180}
+                        level="M"
+                        includeMargin={false}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Wallet hint */}
+                  {cryptoPayment.payCurrency.toLowerCase() === 'btc' && (
+                    <p className="text-center text-white/40 text-xs leading-tight">
+                      📱 Cash App users — scan this QR to pay instantly
+                    </p>
+                  )}
+                  {hasCryptoUriScheme(cryptoPayment.payCurrency) &&
+                    cryptoPayment.payCurrency.toLowerCase() !== 'btc' && (
+                    <p className="text-center text-white/40 text-xs leading-tight">
+                      📱 Scan with any {selectedCrypto.name} wallet to pay
+                    </p>
+                  )}
+
+                  {/* Amount to send */}
+                  <div className="text-center">
+                    <p className="text-white/50 text-xs uppercase tracking-widest mb-1">
+                      Send Exactly
+                    </p>
+                    <p className="text-white text-xl font-black tracking-tight">
+                      {cryptoPayment.payAmount}{' '}
+                      <span className="text-sm font-bold" style={{ color: selectedCrypto.color }}>
+                        {cryptoPayment.payCurrency.toUpperCase()}
+                      </span>
+                    </p>
+                    <p className="text-white/40 text-xs mt-0.5">
+                      ≈ ${cryptoPayment.priceAmount.toFixed(2)} USD
+                    </p>
+                  </div>
+
+                  {/* Deposit address */}
+                  <div>
+                    <p className="text-white/50 text-xs uppercase tracking-widest mb-1 text-center">
+                      To Address
+                    </p>
+                    <button
+                      onClick={() => copyAddress(cryptoPayment.payAddress)}
+                      className="w-full flex items-center gap-2 bg-white/5 hover:bg-white/10 rounded-xl px-3 py-3 transition-all group"
+                    >
+                      <span className="flex-1 text-white/80 text-xs font-mono break-all text-left leading-relaxed">
+                        {cryptoPayment.payAddress}
+                      </span>
+                      <span className="shrink-0">
+                        {cryptoCopied ? (
+                          <FaCheck className="text-emerald-400 text-sm" />
+                        ) : (
+                          <FaCopy className="text-white/40 group-hover:text-white/70 text-sm transition-colors" />
+                        )}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Extra ID (for coins like XRP that need memo/tag) */}
+                  {cryptoPayment.payinExtraId && (
+                    <div>
+                      <p className="text-white/50 text-xs uppercase tracking-widest mb-1 text-center">
+                        Memo / Tag
+                      </p>
+                      <button
+                        onClick={() => copyAddress(cryptoPayment.payinExtraId!)}
+                        className="w-full flex items-center gap-2 bg-white/5 hover:bg-white/10 rounded-xl px-3 py-3 transition-all group"
+                      >
+                        <span className="flex-1 text-white/80 text-xs font-mono text-left">
+                          {cryptoPayment.payinExtraId}
+                        </span>
+                        <FaCopy className="text-white/40 group-hover:text-white/70 text-sm transition-colors shrink-0" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Cancel */}
+                <button
+                  onClick={() => setShowCryptoModal(false)}
+                  className="w-full mt-4 py-3 text-zinc-500 text-sm font-medium hover:text-zinc-700 transition-colors"
                 >
                   Cancel Payment
                 </button>
