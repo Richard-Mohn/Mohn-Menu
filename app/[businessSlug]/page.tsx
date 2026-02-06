@@ -13,6 +13,7 @@ import { SERVICE_INFO } from '@/lib/types';
 import { headers } from 'next/headers';
 import { getServerBasePath, getServerOrderPath } from '@/lib/tenant-links';
 import TenantHeroActions from '@/components/TenantHeroActions';
+import TenantCTA from '@/components/TenantCTA';
 
 async function getBusinessBySlug(slug: string): Promise<(MohnMenuBusiness & { businessId: string }) | null> {
   try {
@@ -225,35 +226,7 @@ export default async function TenantHomePage({
       )}
 
       {/* ─── CTA Section ──────────────────────────────────────── */}
-      <section className="py-24 px-4 bg-black text-white">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-6">
-            Ready to Order?
-          </h2>
-          <p className="text-xl text-zinc-400 mb-10 max-w-xl mx-auto">
-            Fresh food, fast service, and real-time tracking. What are you waiting for?
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {business.settings?.orderingEnabled && (
-              <a 
-                href={orderPath}
-                className="inline-flex items-center gap-3 px-10 py-5 bg-white text-black rounded-full font-bold text-lg hover:bg-zinc-200 transition-all"
-              >
-                Order Online
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </a>
-            )}
-            <a 
-              href={`${basePath}/menu`}
-              className="inline-flex items-center gap-3 px-10 py-5 border-2 border-zinc-700 text-white rounded-full font-bold text-lg hover:border-white transition-all"
-            >
-              View Full Menu
-            </a>
-          </div>
-        </div>
-      </section>
+      <TenantCTA business={business} menuPath={`${basePath}/menu`} />
     </div>
   );
 }

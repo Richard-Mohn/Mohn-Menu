@@ -10,16 +10,17 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { MohnMenuBusiness } from '@/lib/types';
 import { headers } from 'next/headers';
+import TenantNav from '@/components/TenantNav';
 
 // Fetch business by slug
-async function getBusinessBySlug(slug: string): Promise<MohnMenuBusiness | null> {
+async function getBusinessBySlug(slug: string): Promise<(MohnMenuBusiness & { businessId: string }) | null> {
   try {
     const businessesRef = collection(db, 'businesses');
     const q = query(businessesRef, where('slug', '==', slug));
     const snapshot = await getDocs(q);
     
     if (snapshot.empty) return null;
-    return snapshot.docs[0].data() as MohnMenuBusiness;
+    return { ...snapshot.docs[0].data(), businessId: snapshot.docs[0].id } as MohnMenuBusiness & { businessId: string };
   } catch {
     return null;
   }
@@ -88,48 +89,13 @@ export default async function TenantLayout({
   }
 
   const basePath = isCustomDomain ? '' : `/${businessSlug}`;
+  const orderPath = isCustomDomain ? '/order' : `/order/${businessSlug}`;
   const primaryColor = business.settings?.primaryColor || business.brandColors?.primary || '#4F46E5';
 
   return (
     <div className="min-h-screen bg-white" style={{ '--tenant-primary': primaryColor } as React.CSSProperties}>
       {/* Tenant Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100">
-        <div className="container mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-          <a href={basePath || '/'} className="text-2xl font-black text-black tracking-tighter">
-            {business.name}
-          </a>
-          
-          <div className="hidden md:flex items-center gap-8">
-            <a href={`${basePath}/`} className="text-sm font-bold text-zinc-600 hover:text-black transition-colors">
-              Home
-            </a>
-            <a href={`${basePath}/menu`} className="text-sm font-bold text-zinc-600 hover:text-black transition-colors">
-              Menu
-            </a>
-            {business.website?.selectedServices?.length > 0 && (
-              <div className="relative group">
-                <span className="text-sm font-bold text-zinc-600 hover:text-black transition-colors cursor-pointer">
-                  Services
-                </span>
-              </div>
-            )}
-            <a href={`${basePath}/about`} className="text-sm font-bold text-zinc-600 hover:text-black transition-colors">
-              About
-            </a>
-            <a href={`${basePath}/contact`} className="text-sm font-bold text-zinc-600 hover:text-black transition-colors">
-              Contact
-            </a>
-            {business.settings?.orderingEnabled && (
-              <a 
-                href={isCustomDomain ? '/order' : `/order/${businessSlug}`}
-                className="px-6 py-2.5 bg-black text-white rounded-full text-sm font-bold hover:bg-zinc-800 transition-colors"
-              >
-                Order Now
-              </a>
-            )}
-          </div>
-        </div>
-      </nav>
+      <TenantNav business={business} basePath={basePath} orderPath={orderPath} />
 
       {/* Page Content */}
       <main className="pt-20">
