@@ -92,9 +92,12 @@ const Footer = () => {
             </a>
           </div>
 
-          <p className="text-[10px] text-zinc-700">
-            <a href="https://neighbortechs.com" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-400 transition-colors">
-              powered by neighbortechs.com
+          <p className="text-[11px] text-zinc-600">
+            <a href="https://mohnmenu.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-orange-500 transition-colors font-bold">
+              <span className="w-3.5 h-3.5 rounded bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                <span className="text-white font-black text-[6px] leading-none">M</span>
+              </span>
+              Powered by MohnMenu.com
             </a>
           </p>
         </div>

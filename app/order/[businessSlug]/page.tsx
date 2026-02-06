@@ -699,22 +699,29 @@ export default function OrderPage({
             </div>
           </div>
 
-          {/* Category tabs */}
+          {/* Category tabs — redesigned with 3D glassmorphic look */}
           {!search && (
-            <div className="flex gap-1 overflow-x-auto pb-3 scrollbar-hide">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
-                    activeCategory === cat
-                      ? 'bg-black text-white'
-                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+            <div className="relative">
+              <div className="flex gap-2 overflow-x-auto pb-3 scroll-smooth" style={{ scrollbarWidth: 'none' }}>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 border ${
+                      activeCategory === cat
+                        ? 'bg-gradient-to-r from-zinc-900 to-zinc-800 text-white border-zinc-700 shadow-lg shadow-black/20 scale-[1.02]'
+                        : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50 hover:shadow-md hover:scale-[1.02] active:scale-95'
+                    }`}
+                    style={activeCategory === cat ? {} : {
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)'
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              {/* Fade hint on right edge */}
+              <div className="absolute right-0 top-0 bottom-3 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
             </div>
           )}
         </div>

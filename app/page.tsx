@@ -149,33 +149,23 @@ export default function Home() {
               >
                 Sign In
               </Link>
-            </motion.div>
 
-            {/* ── Quick Order Try-It Button ── */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.85 }}
-              className="mt-6 flex justify-center"
-            >
+              {/* Quick Order Try-It Button — inline 3rd CTA */}
               <div className="relative group">
-                {/* Floating tag */}
+                {/* Floating tag — small + semi-transparent */}
                 <motion.div
-                  className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg z-10"
-                  animate={{ y: [0, -4, 0] }}
+                  className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 bg-orange-600/50 text-white text-[8px] font-black uppercase tracking-[0.15em] rounded-full shadow-md z-10 pointer-events-none"
+                  animate={{ y: [0, -3, 0] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 >
                   ▶ TRY IT LIVE
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2 h-2 bg-orange-600 rotate-45" />
                 </motion.div>
 
-                {/* The button */}
                 <button
                   onClick={() => setQuickOrderOpen(true)}
                   className="relative px-8 py-4 md:px-10 md:py-5 rounded-full font-bold text-base md:text-lg bg-gradient-to-r from-orange-500 to-red-600 text-white overflow-hidden transition-all active:scale-95 flex items-center gap-3"
                   style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}
                 >
-                  {/* Shimmer sweep */}
                   <span className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
                     <span
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -186,7 +176,7 @@ export default function Home() {
                     />
                   </span>
                   <FaShoppingCart className="relative z-10" />
-                  <span className="relative z-10">Quick Order Demo</span>
+                  <span className="relative z-10">Quick Order</span>
                   <FaPlay className="relative z-10 text-xs group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>

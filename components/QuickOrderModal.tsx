@@ -580,26 +580,26 @@ export default function QuickOrderModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* ── Close button — always visible, top-right ── */}
+      {/* ── Close button — always visible, top-right, above header ── */}
       <button
         onClick={onClose}
-        className="fixed top-4 right-4 z-[60] w-10 h-10 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 cursor-pointer"
+        className="fixed top-5 right-5 z-[130] w-10 h-10 bg-white hover:bg-zinc-100 rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110 cursor-pointer border border-zinc-200"
         aria-label="Close Quick Order"
       >
         <FaTimes className="text-zinc-700 text-sm" />
       </button>
 
-      {/* ══ Modal — compact, centered ══ */}
+      {/* ══ Modal — compact, centered, above header ══ */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-        className="fixed inset-x-4 top-[5%] bottom-[5%] sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[480px] sm:h-[85vh] sm:max-h-[720px] z-[55] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="fixed inset-x-4 top-4 bottom-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[480px] sm:h-[85vh] sm:max-h-[720px] z-[120] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* ── Header bar ── */}
@@ -676,23 +676,33 @@ export default function QuickOrderModal({
                     </div>
                   </div>
 
-                  {/* Category pills */}
+                  {/* Category pills — redesigned with glassmorphic 3D look */}
                   {!search && (
-                    <div className="overflow-x-auto px-4 pb-2 scrollbar-none">
-                      <div className="flex gap-1.5">
-                        {categories.map(cat => (
-                          <button
-                            key={cat}
-                            onClick={() => setActiveCategory(cat)}
-                            className={`shrink-0 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all whitespace-nowrap ${
-                              activeCategory === cat
-                                ? 'bg-black text-white'
-                                : 'bg-zinc-100 text-zinc-500 hover:bg-zinc-200'
-                            }`}
-                          >
-                            {cat}
-                          </button>
-                        ))}
+                    <div className="px-4 pb-2">
+                      <div className="relative">
+                        <div className="overflow-x-auto scrollbar-none scroll-smooth" style={{ scrollbarWidth: 'none' }}>
+                          <div className="flex gap-2 pb-1">
+                            {categories.map((cat, i) => (
+                              <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`shrink-0 px-4 py-2 rounded-xl text-[11px] font-bold transition-all duration-300 whitespace-nowrap border ${
+                                  activeCategory === cat
+                                    ? 'bg-gradient-to-r from-zinc-900 to-zinc-800 text-white border-zinc-700 shadow-lg shadow-black/20 scale-[1.02]'
+                                    : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50 hover:shadow-md hover:scale-[1.02] active:scale-95'
+                                }`}
+                                style={activeCategory === cat ? {} : {
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)'
+                                }}
+                              >
+                                {cat}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Fade hints on edges */}
+                        <div className="absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+                        <div className="absolute left-0 top-0 bottom-1 w-4 bg-gradient-to-r from-white to-transparent pointer-events-none" />
                       </div>
                     </div>
                   )}
@@ -1357,15 +1367,18 @@ export default function QuickOrderModal({
           </div>
         )}
 
-        {/* ── NeighborTechs watermark — all steps ── */}
-        <div className="shrink-0 py-1.5 text-center">
+        {/* ── MohnMenu watermark — all steps ── */}
+        <div className="shrink-0 py-2 text-center bg-gradient-to-r from-zinc-50 to-zinc-100 border-t border-zinc-100">
           <a
-            href="https://neighbortechs.com"
+            href="https://mohnmenu.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[8px] text-zinc-300 hover:text-zinc-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 hover:text-orange-600 transition-colors"
           >
-            powered by neighbortechs.com
+            <span className="w-3.5 h-3.5 rounded bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+              <span className="text-white font-black text-[6px] leading-none">M</span>
+            </span>
+            Powered by MohnMenu.com
           </a>
         </div>
       </motion.div>
@@ -1378,7 +1391,7 @@ export default function QuickOrderModal({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[65] bg-black/30"
+              className="fixed inset-0 z-[125] bg-black/30"
               onClick={() => setSelectedItem(null)}
             />
             <motion.div
@@ -1386,7 +1399,7 @@ export default function QuickOrderModal({
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-              className="fixed bottom-0 inset-x-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[400px] z-[70] bg-white rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl space-y-4"
+              className="fixed bottom-0 inset-x-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[400px] z-[135] bg-white rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl space-y-4"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-start justify-between">
