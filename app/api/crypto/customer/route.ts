@@ -17,13 +17,19 @@ import {
 } from '@/lib/nowpayments';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const serviceAccount = require(process.cwd() + '/serviceAccountKey.json');
-    initializeApp({ credential: cert(serviceAccount) });
+    const keyPath = join(process.cwd(), 'serviceAccountKey.json');
+    if (existsSync(keyPath)) {
+      const serviceAccount = JSON.parse(readFileSync(keyPath, 'utf-8'));
+      initializeApp({ credential: cert(serviceAccount) });
+    } else {
+      initializeApp();
+    }
   } catch {
     initializeApp();
   }
