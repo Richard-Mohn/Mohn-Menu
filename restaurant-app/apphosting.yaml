@@ -1,46 +1,44 @@
-# Firebase App Hosting configuration
-apiVersion: "apphosting.googleapis.com/v1"
-kind: Backend
-metadata:
-  name: "mohnmenu-app"
-  labels:
-    environment: "production"
-    app: "mohnmenu"
+# Firebase App Hosting configuration for Next.js
+# Docs: https://firebase.google.com/docs/app-hosting
 
-spec:
-  codeDir: "restaurant-app"
-  runtime:
-    runtime: "nodejs20"
-  env:
-    variables:
-      NODE_ENV: "production"
-      NEXT_PUBLIC_FIREBASE_API_KEY:
-        secretRef: "firebase_api_key"
-      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:
-        secretRef: "firebase_auth_domain"
-      NEXT_PUBLIC_FIREBASE_DATABASE_URL:
-        secretRef: "firebase_database_url"
-      NEXT_PUBLIC_FIREBASE_PROJECT_ID:
-        secretRef: "firebase_project_id"
-      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET:
-        secretRef: "firebase_storage_bucket"
-      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:
-        secretRef: "firebase_messaging_sender_id"
-      NEXT_PUBLIC_FIREBASE_APP_ID:
-        secretRef: "firebase_app_id"
-      NEXT_PUBLIC_MAPBOX_TOKEN:
-        secretRef: "mapbox_token"
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
-        secretRef: "stripe_publishable_key"
-      STRIPE_SECRET_KEY:
-        secretRef: "stripe_secret_key"
-      NEXT_PUBLIC_OWNER_SECRET_CODE:
-        secretRef: "owner_secret_code"
+env:
+  # Build variables - visible during build
+  variables:
+    NODE_ENV: "production"
 
-  runConfig:
-    minInstances: 1
-    maxInstances: 10
-    concurrency: 80
-    cpuCount: 2
-    memoryMiB: 1024
-    timeoutSeconds: 60
+  # Secret variables - managed via Firebase CLI or Console
+  secrets:
+    - NEXT_PUBLIC_FIREBASE_API_KEY
+    - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    - NEXT_PUBLIC_FIREBASE_DATABASE_URL
+    - NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    - NEXT_PUBLIC_FIREBASE_APP_ID
+    - NEXT_PUBLIC_MAPBOX_TOKEN
+    - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    - STRIPE_SECRET_KEY
+    - NEXT_PUBLIC_OWNER_SECRET_CODE
+
+buildConfig:
+  # Next.js build command
+  buildCommand: "npm install && npm run build"
+  
+nodeConfig:
+  # Node.js runtime version
+  nodeVersion: "20"
+
+runConfig:
+  # Min/max instances for auto-scaling
+  minInstances: 1
+  maxInstances: 10
+  
+  # Memory and CPU
+  memory: 1024
+  cpu: 2
+  
+  # Concurrent requests per instance
+  concurrency: 80
+  
+  # Request timeout
+  timeoutSeconds: 60
