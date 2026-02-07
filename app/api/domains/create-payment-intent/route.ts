@@ -1,18 +1,23 @@
 /**
- * Domain Payment Intent API
+ * Domain Payment Intent API — Flat $14.99/yr Pricing
  *
  * POST /api/domains/create-payment-intent
  *
  * Creates a Stripe PaymentIntent for a domain purchase.
- * The total includes GoDaddy wholesale price + $5 markup.
+ * Flat price of $14.99/yr — no variable markup, no hidden fees.
  *
- * Body: { domain: "example.com" }
- * Returns: { clientSecret, totalCents, breakdown }
+ * Body: { domain: "example.com", years?: 1 }
+ * Returns: { clientSecret, paymentIntentId, totalCents, breakdown }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { checkDomainAvailability, formatPrice } from '@/lib/domain-registrar';
+import {
+  checkDomainAvailability,
+  DOMAIN_PRICE_CENTS,
+  formatPrice,
+  getCompetitorComparison,
+} from '@/lib/domain-registrar';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-04-30.basil' as Stripe.LatestApiVersion,
@@ -21,13 +26,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { domain } = body;
+    const { domain, years = 1 } = body;
 
     if (!domain) {
       return NextResponse.json({ error: 'Missing domain' }, { status: 400 });
     }
 
-    // Check availability and get pricing
+    // Check availability
     const availability = await checkDomainAvailability(domain);
 
     if (!availability.available) {
@@ -37,14 +42,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const totalCents = availability.totalPrice;
-
-    if (totalCents <= 0) {
-      return NextResponse.json(
-        { error: 'Could not determine domain pricing' },
-        { status: 400 },
-      );
-    }
+    // Flat pricing — $14.99/yr × years
+    const totalCents = DOMAIN_PRICE_CENTS * years;
 
     // Create Stripe PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
@@ -53,23 +52,35 @@ export async function POST(request: NextRequest) {
       metadata: {
         type: 'domain_purchase',
         domain,
-        wholesaleCents: String(availability.price),
-        markupCents: String(availability.markup),
+        years: String(years),
+        pricePerYear: String(DOMAIN_PRICE_CENTS),
       },
-      description: `Domain purchase: ${domain} (1 year)`,
+      description: `Domain: ${domain} (${years} year${years > 1 ? 's' : ''})`,
       automatic_payment_methods: { enabled: true },
     });
+
+    // Get competitor comparison for UI
+    const competitors = getCompetitorComparison();
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
       totalCents,
       breakdown: {
-        domainCost: formatPrice(availability.price),
-        platformFee: formatPrice(availability.markup),
+        domain: domain,
+        years,
+        pricePerYear: formatPrice(DOMAIN_PRICE_CENTS),
         total: formatPrice(totalCents),
+        includes: [
+          'Domain registration',
+          'Free WHOIS privacy',
+          'Auto DNS configuration',
+          'SSL certificate',
+          'Custom domain routing',
+          'Auto-renewal',
+        ],
       },
-      domain: availability.domain,
+      competitors,
     });
   } catch (error) {
     console.error('Domain payment intent error:', error);

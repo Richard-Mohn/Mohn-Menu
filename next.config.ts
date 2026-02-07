@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   trailingSlash: true,
+  // Keep nodejs-dna and its SOAP dependencies out of the webpack bundle
+  serverExternalPackages: ['nodejs-dna', 'strong-soap', 'strong-globalize', 'globalize'],
   images: {
     remotePatterns: [
       {

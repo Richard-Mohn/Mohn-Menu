@@ -1,16 +1,20 @@
 /**
- * Domain Search API
+ * Domain Search API — DomainNameAPI
  *
  * GET  /api/domains/search?domain=mybusiness.com         — Check single domain
- * GET  /api/domains/search?keyword=mybusiness&limit=10   — Get suggestions
+ * GET  /api/domains/search?keyword=mybusiness&limit=10   — Keyword search across TLDs
  * POST /api/domains/search { domains: ["a.com","b.com"] } — Bulk check
+ *
+ * All results return flat $14.99/yr pricing + competitor comparison data.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import {
   checkDomainAvailability,
+  checkKeywordAvailability,
   checkBulkAvailability,
-  getDomainSuggestions,
+  getCompetitorComparison,
+  getDomainPrice,
 } from '@/lib/domain-registrar';
 
 export async function GET(request: NextRequest) {
@@ -20,24 +24,43 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '10');
 
   try {
+    const pricing = getDomainPrice();
+    const competitors = getCompetitorComparison();
+
     // Single domain availability check
     if (domain) {
       const result = await checkDomainAvailability(domain);
-      return NextResponse.json(result);
-    }
 
-    // Keyword-based suggestions
-    if (keyword) {
-      const suggestions = await getDomainSuggestions(keyword, limit);
+      // Also get keyword suggestions from the domain's SLD
+      const sld = domain.split('.')[0];
+      const suggestions = sld
+        ? await checkKeywordAvailability(sld, undefined, 8)
+        : [];
 
-      // Check availability for top suggestions
-      if (suggestions.length > 0) {
-        const domains = suggestions.map((s) => s.domain);
-        const availability = await checkBulkAvailability(domains);
-        return NextResponse.json({ suggestions: availability });
+      // Merge — put exact check first, then suggestions (excluding duplicates)
+      const allResults = [result];
+      for (const s of suggestions) {
+        if (s.domain !== result.domain) {
+          allResults.push(s);
+        }
       }
 
-      return NextResponse.json({ suggestions: [] });
+      return NextResponse.json({
+        results: allResults,
+        primary: result,
+        pricing,
+        competitors,
+      });
+    }
+
+    // Keyword-based search across popular TLDs
+    if (keyword) {
+      const results = await checkKeywordAvailability(keyword, undefined, limit);
+      return NextResponse.json({
+        suggestions: results,
+        pricing,
+        competitors,
+      });
     }
 
     return NextResponse.json(
@@ -71,7 +94,10 @@ export async function POST(request: NextRequest) {
     }
 
     const results = await checkBulkAvailability(domains);
-    return NextResponse.json({ domains: results });
+    const pricing = getDomainPrice();
+    const competitors = getCompetitorComparison();
+
+    return NextResponse.json({ domains: results, pricing, competitors });
   } catch (error) {
     console.error('Bulk domain search error:', error);
     const msg = error instanceof Error ? error.message : 'Bulk search failed';

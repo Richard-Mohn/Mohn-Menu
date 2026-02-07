@@ -2,7 +2,16 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useState, useEffect, useCallback } from 'react';
-import { FaGlobe, FaSearch, FaCheck, FaTimes, FaSpinner, FaCreditCard, FaCog, FaExternalLinkAlt, FaInfoCircle, FaStar } from 'react-icons/fa';
+import { FaGlobe, FaSearch, FaCheck, FaTimes, FaSpinner, FaCreditCard, FaCog, FaExternalLinkAlt, FaInfoCircle, FaStar, FaTag } from 'react-icons/fa';
+
+// Competitor prices for comparison (retail .com/yr)
+const COMPETITOR_PRICES = [
+  { name: 'GoDaddy', price: '$22.99', savings: '$8.00' },
+  { name: 'Namecheap', price: '$15.98', savings: '$0.99' },
+  { name: 'Squarespace', price: '$20.00', savings: '$5.01' },
+  { name: 'Hostinger', price: '$15.99', savings: '$1.00' },
+];
+const OUR_PRICE = '$14.99';
 
 interface DomainResult {
   domain: string;
@@ -346,7 +355,7 @@ export default function OwnerDomainPage() {
             </div>
             <div className="text-center p-3 bg-white rounded-lg">
               <p className="text-xs text-zinc-500">Registrar</p>
-              <p className="font-bold text-sm text-zinc-700">GoDaddy</p>
+              <p className="font-bold text-sm text-zinc-700">MohnMenu</p>
             </div>
           </div>
         </div>
@@ -393,6 +402,11 @@ export default function OwnerDomainPage() {
                       improves SEO, and builds brand trust. Your customers will visit your own domain instead of
                       mohnmenu.com/your-slug.
                     </p>
+                    <div className="mt-3 flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs font-bold">
+                        <FaTag className="text-[9px]" /> {OUR_PRICE}/yr — includes free WHOIS privacy & SSL
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -455,14 +469,12 @@ export default function OwnerDomainPage() {
                         </div>
                       </div>
 
-                      {result.available && result.totalPrice > 0 && (
+                      {result.available && (
                         <div className="text-right">
-                          <p className="font-black text-black">{formatPrice(result.totalPrice)}<span className="text-xs text-zinc-500">/yr</span></p>
-                          {result.markup > 0 && (
-                            <p className="text-xs text-zinc-400">
-                              incl. {formatPrice(result.markup)} platform fee
-                            </p>
-                          )}
+                          <p className="font-black text-black">{OUR_PRICE}<span className="text-xs text-zinc-500">/yr</span></p>
+                          <p className="text-xs text-emerald-600 font-medium">
+                            Save $8 vs GoDaddy
+                          </p>
                         </div>
                       )}
                     </div>
@@ -483,6 +495,26 @@ export default function OwnerDomainPage() {
                 <div className="text-center py-12">
                   <FaGlobe className="text-4xl text-zinc-300 mx-auto mb-3" />
                   <p className="text-zinc-500">Search for a domain to get started</p>
+                </div>
+              )}
+
+              {/* Price comparison — shown after results */}
+              {searchResults.length > 0 && !searching && (
+                <div className="mt-6 p-4 bg-zinc-50 border border-zinc-100 rounded-xl">
+                  <p className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Why MohnMenu domains?</p>
+                  <div className="flex items-center gap-6 flex-wrap text-xs text-zinc-500">
+                    {COMPETITOR_PRICES.map(c => (
+                      <div key={c.name} className="flex items-center gap-1.5">
+                        <span className="text-zinc-400 line-through">{c.price}</span>
+                        <span className="text-zinc-300">{c.name}</span>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-1.5 font-bold text-emerald-600">
+                      <FaCheck className="text-[10px]" />
+                      <span>{OUR_PRICE} MohnMenu</span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-zinc-400 mt-1.5">Includes free WHOIS privacy, SSL, auto DNS setup & website hosting</p>
                 </div>
               )}
 
@@ -521,7 +553,7 @@ export default function OwnerDomainPage() {
                     <p className="text-xs text-zinc-500">Selected domain</p>
                   </div>
                 </div>
-                <p className="font-black text-lg">{formatPrice(purchaseState.selectedDomain.totalPrice)}<span className="text-xs text-zinc-500">/yr</span></p>
+                <p className="font-black text-lg">{OUR_PRICE}<span className="text-xs text-zinc-500">/yr</span></p>
               </div>
 
               {/* Contact form */}
@@ -716,20 +748,26 @@ export default function OwnerDomainPage() {
                   <div className="flex justify-between items-center py-3 border-b border-zinc-100">
                     <div>
                       <p className="font-bold text-black">{purchaseState.selectedDomain.domain}</p>
-                      <p className="text-xs text-zinc-500">1 year registration</p>
+                      <p className="text-xs text-zinc-500">1 year registration + WHOIS privacy + SSL + DNS setup</p>
                     </div>
-                    <p className="font-medium text-zinc-600">{formatPrice(purchaseState.selectedDomain.price)}</p>
-                  </div>
-                  <div className="flex justify-between items-center py-3 border-b border-zinc-100">
-                    <div>
-                      <p className="font-bold text-black">Platform Setup Fee</p>
-                      <p className="text-xs text-zinc-500">Includes DNS configuration, SSL, and routing</p>
-                    </div>
-                    <p className="font-medium text-zinc-600">{formatPrice(purchaseState.selectedDomain.markup)}</p>
+                    <p className="font-medium text-zinc-600">{OUR_PRICE}</p>
                   </div>
                   <div className="flex justify-between items-center py-3">
                     <p className="font-black text-lg text-black">Total</p>
-                    <p className="font-black text-lg text-black">{formatPrice(purchaseState.selectedDomain.totalPrice)}</p>
+                    <p className="font-black text-lg text-black">{OUR_PRICE}<span className="text-xs font-normal text-zinc-500">/yr</span></p>
+                  </div>
+                </div>
+
+                {/* Subtle competitor comparison */}
+                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 mb-4">
+                  <p className="text-xs font-bold text-emerald-700 mb-1.5">You&apos;re saving money</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                    {COMPETITOR_PRICES.map(c => (
+                      <div key={c.name} className="flex justify-between text-zinc-500">
+                        <span>{c.name}: <span className="line-through">{c.price}</span></span>
+                        <span className="text-emerald-600 font-medium">Save {c.savings}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 

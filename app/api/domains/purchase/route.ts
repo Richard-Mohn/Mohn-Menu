@@ -1,5 +1,5 @@
 /**
- * Domain Purchase API
+ * Domain Purchase API — Stripe-First Flow with DomainNameAPI
  *
  * POST /api/domains/purchase
  *
@@ -8,26 +8,32 @@
  *   businessSlug: "my-business",
  *   years: 1,
  *   contact: { nameFirst, nameLast, email, phone, addressMailing: { ... } },
- *   stripePaymentIntentId: "pi_xxx"  // Pre-authorized Stripe payment
+ *   stripePaymentIntentId: "pi_xxx"  // Confirmed Stripe payment
  * }
  *
  * Flow:
  * 1. Verify user is authenticated & owns the business
  * 2. Verify Stripe payment was successful
- * 3. Purchase domain via GoDaddy API
- * 4. Configure DNS (CNAME → Firebase App Hosting)
+ * 3. Register domain via DomainNameAPI (white-label, WHOIS privacy included)
+ * 4. Nameservers auto-configured during registration
  * 5. Update Firestore with custom domain info
- * 6. Return success with domain details
+ * 6. Website automatically serves on custom domain via proxy.ts
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
 import { adminDb } from '@/lib/firebaseAdmin';
 import {
-  purchaseDomain,
-  configureDNSForAppHosting,
+  registerDomain,
   getDomainInfo,
+  enablePrivacyProtection,
+  DOMAIN_PRICE_CENTS,
   type DomainContact,
 } from '@/lib/domain-registrar';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2025-04-30.basil' as Stripe.LatestApiVersion,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,7 +55,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify business ownership
+    if (!stripePaymentIntentId) {
+      return NextResponse.json(
+        { error: 'Payment is required before domain registration' },
+        { status: 400 },
+      );
+    }
+
+    // ── Verify Stripe Payment ──────────────────────────────────
+    console.log(`[Domain Purchase] Verifying Stripe payment ${stripePaymentIntentId}`);
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(stripePaymentIntentId);
+
+    if (paymentIntent.status !== 'succeeded') {
+      return NextResponse.json(
+        { error: `Payment not completed. Status: ${paymentIntent.status}` },
+        { status: 400 },
+      );
+    }
+
+    // Verify the payment amount matches our price
+    if (paymentIntent.amount !== DOMAIN_PRICE_CENTS * years) {
+      console.warn(
+        `[Domain Purchase] Payment amount mismatch: expected ${DOMAIN_PRICE_CENTS * years}, got ${paymentIntent.amount}`,
+      );
+    }
+
+    // ── Verify Business Ownership ──────────────────────────────
     const businessDoc = await adminDb
       .collection('businesses')
       .where('slug', '==', businessSlug)
@@ -75,35 +107,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── Purchase Domain ────────────────────────────────────────
-    console.log(`[Domain Purchase] Purchasing ${domain} for business ${businessSlug}`);
+    // ── Register Domain via DomainNameAPI ───────────────────────
+    console.log(`[Domain Purchase] Registering ${domain} for business ${businessSlug}`);
 
-    const purchaseResult = await purchaseDomain({
+    const purchaseResult = await registerDomain({
       domain,
       years,
       contact: contact as DomainContact,
     });
 
-    console.log(`[Domain Purchase] Success! Order #${purchaseResult.orderId}`);
+    console.log(`[Domain Purchase] Registered! Order: ${purchaseResult.orderId}`);
 
-    // ── Configure DNS ──────────────────────────────────────────
-    console.log(`[Domain Purchase] Configuring DNS for ${domain}`);
-
-    // Small delay for domain to propagate in GoDaddy's system
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    let dnsConfigured = false;
+    // ── Enable Privacy Protection (free) ───────────────────────
     try {
-      await configureDNSForAppHosting(domain);
-      dnsConfigured = true;
-      console.log(`[Domain Purchase] DNS configured for ${domain}`);
-    } catch (dnsError) {
-      // DNS config can fail if domain hasn't fully propagated yet
-      // We'll retry via a background job or the owner can trigger it later
-      console.error(`[Domain Purchase] DNS config failed (will retry):`, dnsError);
+      await enablePrivacyProtection(domain);
+    } catch (privacyError) {
+      // Non-critical — privacy was already requested during registration
+      console.warn('[Domain Purchase] Privacy protection post-enable failed (may already be active):', privacyError);
     }
 
     // ── Get Domain Info ────────────────────────────────────────
+    // Small delay to let registration propagate
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     let domainInfo = null;
     try {
       domainInfo = await getDomainInfo(domain);
@@ -114,36 +140,47 @@ export async function POST(request: NextRequest) {
     // ── Update Firestore ───────────────────────────────────────
     const domainData = {
       'website.customDomain': domain,
-      'website.customDomainEnabled': dnsConfigured,
+      'website.customDomainEnabled': true,
       'website.domainPurchased': true,
       'website.domainPurchaseDate': new Date().toISOString(),
-      'website.domainExpiry': domainInfo?.expires || null,
+      'website.domainExpiry': domainInfo?.expires || purchaseResult.expirationDate || null,
       'website.domainOrderId': purchaseResult.orderId,
       'website.domainAutoRenew': true,
-      'website.dnsConfigured': dnsConfigured,
-      'website.domainStatus': dnsConfigured ? 'active' : 'pending_dns',
-      'website.domainRegistrar': 'godaddy',
-      'website.stripePaymentIntentId': stripePaymentIntentId || null,
+      'website.dnsConfigured': true, // Nameservers set during registration
+      'website.domainStatus': 'active',
+      'website.domainRegistrar': 'domainnameapi',
+      'website.domainPrivacy': true,
+      'website.stripePaymentIntentId': stripePaymentIntentId,
     };
 
     await businessRef.update(domainData);
 
-    // ── Record the purchase in a separate collection for billing ──
+    // ── Record Domain in resolve-domain collection ─────────────
+    // This allows proxy.ts to route the custom domain to the business
+    await adminDb.collection('customDomains').doc(domain).set({
+      businessSlug,
+      businessId: businessDoc.docs[0].id,
+      ownerId: uid,
+      domain,
+      createdAt: new Date().toISOString(),
+      status: 'active',
+    });
+
+    // ── Record the purchase for billing history ────────────────
     await adminDb.collection('domainPurchases').add({
       businessId: businessDoc.docs[0].id,
       businessSlug,
       ownerId: uid,
       domain,
-      registrar: 'godaddy',
+      registrar: 'domainnameapi',
       orderId: purchaseResult.orderId,
       yearsRegistered: years,
-      costCents: purchaseResult.total,
-      markupCents: 500, // $5 markup
-      totalChargedCents: purchaseResult.total + 500,
-      stripePaymentIntentId: stripePaymentIntentId || null,
-      dnsConfigured,
+      retailCents: DOMAIN_PRICE_CENTS,
+      stripePaymentIntentId,
+      dnsConfigured: true,
+      privacyEnabled: true,
       purchasedAt: new Date().toISOString(),
-      expiresAt: domainInfo?.expires || null,
+      expiresAt: domainInfo?.expires || purchaseResult.expirationDate || null,
       status: 'active',
     });
 
@@ -151,11 +188,9 @@ export async function POST(request: NextRequest) {
       success: true,
       domain,
       orderId: purchaseResult.orderId,
-      dnsConfigured,
-      domainStatus: dnsConfigured ? 'active' : 'pending_dns',
-      message: dnsConfigured
-        ? `${domain} is purchased and DNS is configured! It may take up to 48 hours for DNS to fully propagate.`
-        : `${domain} is purchased! DNS configuration is pending — it will be retried automatically.`,
+      dnsConfigured: true,
+      domainStatus: 'active',
+      message: `${domain} is registered and configured! Your website is now accessible at ${domain}. DNS may take up to 48 hours to fully propagate worldwide.`,
     });
   } catch (error) {
     console.error('Domain purchase error:', error);

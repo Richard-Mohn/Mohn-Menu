@@ -13,7 +13,7 @@ const FEATURES = [
   { icon: FaMapMarkerAlt, title: 'City & Service Area Pages', desc: 'Auto-generated location pages for every city you serve. Each one is SEO-optimized with your business info and services for that area.' },
   { icon: FaListAlt, title: '11 Service Verticals', desc: 'Online ordering, delivery, takeout, dine-in, catering, convenience store, grocery, bakery, meal prep, food truck, family packs — each gets its own page.' },
   { icon: FaMobileAlt, title: 'Mobile-First Design', desc: 'Clean, modern responsive design that looks great on phones, tablets, and desktops. Navigation, hero, services, and CTA — all optimized for every screen.' },
-  { icon: FaGlobeAmericas, title: 'Custom Domain Support', desc: 'Connect your own domain (e.g., yourrestaurant.com) to your MohnMenu-hosted storefront. Configure in the Website Builder.' },
+  { icon: FaGlobeAmericas, title: 'Custom Domains — $14.99/yr', desc: 'Register your own branded domain (e.g., yourrestaurant.com) directly through MohnMenu for just $14.99/yr — cheaper than GoDaddy ($22.99) or Squarespace ($20). Includes free WHOIS privacy, SSL, and auto DNS setup.' },
   { icon: FaCode, title: 'Zero MohnMenu Branding', desc: 'Your storefront shows your business name, your branding, and your content. Only a small "Powered by MohnMenu" in the footer.' },
   { icon: FaLink, title: 'Instant Live URL', desc: 'Your site is live immediately at mohnmenu.com/your-slug as soon as you complete onboarding. No deploy steps required.' },
   { icon: FaGlobe, title: 'Server-Side Rendering', desc: 'All tenant pages are server-rendered in Next.js for fast load times and optimal SEO. No client-side JS needed for initial content.' },
@@ -34,7 +34,7 @@ const FAQS = [
   },
   {
     q: 'Can I use my own domain?',
-    a: 'Yes. In the Website Builder, there\'s a Custom Domain step where you can enter your domain. You\'ll need to point your domain\'s DNS to our servers. Otherwise, your site is available at mohnmenu.com/your-business-slug.',
+    a: 'Yes! You can register a custom domain directly through MohnMenu for just $14.99/yr — that\'s cheaper than GoDaddy, Namecheap, or Squarespace. Free WHOIS privacy, SSL certificate, and automatic DNS configuration are all included. Your website goes live on your custom domain automatically after purchase.',
   },
   {
     q: 'Is MohnMenu branding shown on my site?',
@@ -113,6 +113,53 @@ export default function WhiteLabelWebsiteFeature() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Domain Pricing Comparison */}
+      <section className="py-20 px-4 bg-zinc-50">
+        <div className="container mx-auto max-w-4xl">
+          <h2 className="text-3xl font-black text-black mb-4 tracking-tight text-center">Custom Domains, Lower Prices<span className="text-orange-500">.</span></h2>
+          <p className="text-zinc-500 text-center mb-12 max-w-2xl mx-auto">
+            Register your branded domain through MohnMenu and save. Free WHOIS privacy, SSL, and automatic website setup included.
+          </p>
+          <div className="bg-white rounded-3xl border border-zinc-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-zinc-100">
+                  <th className="text-left px-6 py-4 font-bold text-zinc-400 text-xs uppercase tracking-widest">Provider</th>
+                  <th className="text-center px-6 py-4 font-bold text-zinc-400 text-xs uppercase tracking-widest">.com/yr</th>
+                  <th className="text-center px-6 py-4 font-bold text-zinc-400 text-xs uppercase tracking-widest">WHOIS Privacy</th>
+                  <th className="text-center px-6 py-4 font-bold text-zinc-400 text-xs uppercase tracking-widest">Website</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="bg-emerald-50 border-b border-emerald-100">
+                  <td className="px-6 py-4 font-black text-black flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    MohnMenu
+                  </td>
+                  <td className="px-6 py-4 text-center font-black text-emerald-600 text-lg">$14.99</td>
+                  <td className="px-6 py-4 text-center text-emerald-600 font-bold">Free</td>
+                  <td className="px-6 py-4 text-center text-emerald-600 font-bold">Included</td>
+                </tr>
+                {[
+                  { name: 'GoDaddy', price: '$22.99', privacy: '$9.99/yr', website: '$11.99/mo' },
+                  { name: 'Namecheap', price: '$15.98', privacy: 'Free', website: 'Extra' },
+                  { name: 'Squarespace', price: '$20.00', privacy: 'Free', website: '$16/mo' },
+                  { name: 'Hostinger', price: '$15.99', privacy: 'Free', website: '$2.99/mo' },
+                ].map((provider) => (
+                  <tr key={provider.name} className="border-b border-zinc-50 text-zinc-500">
+                    <td className="px-6 py-3 font-medium">{provider.name}</td>
+                    <td className="px-6 py-3 text-center">{provider.price}</td>
+                    <td className="px-6 py-3 text-center text-xs">{provider.privacy}</td>
+                    <td className="px-6 py-3 text-center text-xs">{provider.website}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-zinc-400 text-center mt-4">Prices as of 2025. MohnMenu domains include a free branded website with SEO, online ordering, and delivery tracking.</p>
         </div>
       </section>
 

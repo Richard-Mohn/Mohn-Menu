@@ -1,23 +1,18 @@
 /**
- * Domain DNS Configuration API
+ * Domain DNS Configuration API — DomainNameAPI
  *
  * POST /api/domains/configure-dns
- * 
- * Retry DNS configuration for a domain that was purchased but DNS setup failed.
- * Also used to verify DNS propagation status.
- * 
- * Body: { domain: "example.com", businessSlug: "my-business", uid: "..." }
+ *   Retry DNS/nameserver configuration for a domain that needs reconfiguration.
+ *   Body: { domain: "example.com", businessSlug: "my-business", uid: "..." }
  *
  * GET /api/domains/configure-dns?domain=example.com
- * 
- * Check current DNS records for a domain.
+ *   Check current domain info and expected DNS records.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebaseAdmin';
 import {
   configureDNSForAppHosting,
-  getDNSRecords,
   getDomainInfo,
 } from '@/lib/domain-registrar';
 
@@ -59,7 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Configure DNS
+    // Configure nameservers via DomainNameAPI
     const result = await configureDNSForAppHosting(domain);
 
     if (result.success) {
@@ -73,7 +68,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: result.success,
       records: result.records,
-      message: 'DNS configured. Changes may take up to 48 hours to propagate worldwide.',
+      message: 'Nameservers configured. DNS changes may take up to 48 hours to propagate worldwide.',
     });
   } catch (error) {
     console.error('DNS configuration error:', error);
@@ -91,16 +86,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const [records, info] = await Promise.all([
-      getDNSRecords(domain).catch(() => []),
-      getDomainInfo(domain).catch(() => null),
-    ]);
+    const info = await getDomainInfo(domain).catch(() => null);
 
     return NextResponse.json({
       domain,
-      records,
       info,
-      message: 'Current DNS records for this domain',
+      expectedRecords: [
+        { type: 'CNAME', name: '@', data: 'mohnmenu.com' },
+        { type: 'CNAME', name: 'www', data: 'mohnmenu.com' },
+      ],
+      message: 'Domain info and expected DNS records',
     });
   } catch (error) {
     console.error('DNS lookup error:', error);

@@ -54,7 +54,7 @@ const FEATURES = [
     slug: 'white-label-website',
     icon: FaPaintBrush,
     title: 'White-Label Website',
-    description: 'Get a branded, SEO-optimized website in minutes. Custom colors, logo, domain, and content — zero coding.',
+    description: 'Get a branded, SEO-optimized website in minutes. Custom domain registration from $14.99/yr — cheaper than GoDaddy. Free SSL, WHOIS privacy, and auto-setup.',
     color: 'from-cyan-500 to-blue-500',
   },
 ];
@@ -173,6 +173,7 @@ export default function FeaturesIndex() {
               'Mobile-optimized responsive design',
               'Real-time order notifications',
               'Auto-generated SEO website',
+              'Custom domain registration ($14.99/yr)',
               '14-day free trial on all plans',
             ].map((feature, i) => (
               <motion.div
