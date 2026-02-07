@@ -15,6 +15,7 @@ import { collection, query, where, getDocs, addDoc, orderBy, doc, setDoc, update
 import { db } from '@/lib/firebase';
 import { authFetch } from '@/lib/authFetch';
 import type { MohnMenuBusiness } from '@/lib/types';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { useCart, type CartItem } from '@/context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -292,6 +293,11 @@ export default function OrderPage({
   const [showCryptoModal, setShowCryptoModal] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Delivery provider state
+  const [deliveryProvider, setDeliveryProvider] = useState<'community' | 'doordash' | 'uber'>('community');
+  const [deliveryQuotes, setDeliveryQuotes] = useState<Array<{ provider: string; fee: number; estimatedMinutes: number; quoteId: string }>>([]);
+  const [quotesLoading, setQuotesLoading] = useState(false);
+
   const { cart, addToCart, removeFromCart, updateQuantity, clearCart, getTotalItems, getTotalPrice } = useCart();
 
   // ── Load business & menu ──
@@ -399,6 +405,7 @@ export default function OrderPage({
     status: 'pending',
     deliveryAddress: orderType === 'delivery' ? deliveryAddress : undefined,
     deliveryInstructions: orderType === 'delivery' ? deliveryInstructions : undefined,
+    deliveryProvider: orderType === 'delivery' ? deliveryProvider : undefined,
     subtotal,
     taxAmount,
     taxRate,
@@ -1320,9 +1327,89 @@ export default function OrderPage({
                   <div>
                     <h3 className="text-sm font-black text-black mb-3">Delivery Address</h3>
                     <div className="space-y-3">
-                      <input type="text" value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} placeholder="Full address" className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black" />
+                      <AddressAutocomplete
+                        value={deliveryAddress}
+                        onChange={setDeliveryAddress}
+                        onSelect={(parsed) => setDeliveryAddress(parsed.formatted)}
+                        placeholder="Start typing your address…"
+                        inputClassName="border-zinc-200 font-medium"
+                      />
                       <input type="text" value={deliveryInstructions} onChange={e => setDeliveryInstructions(e.target.value)} placeholder="Delivery instructions (optional)" className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black" />
                     </div>
+                  </div>
+                )}
+
+                {/* Delivery provider selection — shown when business has white-label delivery enabled */}
+                {orderType === 'delivery' && business?.settings?.thirdPartyDelivery?.enabled && business.settings.thirdPartyDelivery.whiteLabel && (
+                  <div>
+                    <h3 className="text-sm font-black text-black mb-3">Delivery Method</h3>
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => setDeliveryProvider('community')}
+                        className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                          deliveryProvider === 'community' ? 'bg-black text-white ring-2 ring-black' : 'bg-zinc-50 hover:bg-zinc-100 border border-zinc-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg">🚴</span>
+                          <div>
+                            <div className="text-sm font-bold">Community Courier</div>
+                            <div className={`text-[11px] ${deliveryProvider === 'community' ? 'text-zinc-300' : 'text-zinc-400'}`}>Local walker, biker, or scooter</div>
+                          </div>
+                        </div>
+                        <div className="text-sm font-black">${(business.settings?.pricing?.deliveryFee || 3.99).toFixed(2)}</div>
+                      </button>
+
+                      {(business.settings.thirdPartyDelivery.providers || []).includes('doordash') && (
+                        <button
+                          type="button"
+                          onClick={() => setDeliveryProvider('doordash')}
+                          className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                            deliveryProvider === 'doordash' ? 'bg-black text-white ring-2 ring-black' : 'bg-zinc-50 hover:bg-zinc-100 border border-zinc-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">🔴</span>
+                            <div>
+                              <div className="text-sm font-bold">Express Delivery</div>
+                              <div className={`text-[11px] ${deliveryProvider === 'doordash' ? 'text-zinc-300' : 'text-zinc-400'}`}>Professional driver • ~25-40 min</div>
+                            </div>
+                          </div>
+                          {deliveryQuotes.find(q => q.provider === 'doordash') ? (
+                            <div className="text-sm font-black">${(deliveryQuotes.find(q => q.provider === 'doordash')!.fee / 100).toFixed(2)}</div>
+                          ) : (
+                            <div className="text-xs text-zinc-400">Get quote</div>
+                          )}
+                        </button>
+                      )}
+
+                      {(business.settings.thirdPartyDelivery.providers || []).includes('uber') && (
+                        <button
+                          type="button"
+                          onClick={() => setDeliveryProvider('uber')}
+                          className={`w-full px-4 py-3 rounded-xl text-left flex items-center justify-between transition-all ${
+                            deliveryProvider === 'uber' ? 'bg-black text-white ring-2 ring-black' : 'bg-zinc-50 hover:bg-zinc-100 border border-zinc-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg">⬛</span>
+                            <div>
+                              <div className="text-sm font-bold">Premium Delivery</div>
+                              <div className={`text-[11px] ${deliveryProvider === 'uber' ? 'text-zinc-300' : 'text-zinc-400'}`}>Professional driver • ~20-35 min</div>
+                            </div>
+                          </div>
+                          {deliveryQuotes.find(q => q.provider === 'uber') ? (
+                            <div className="text-sm font-black">${(deliveryQuotes.find(q => q.provider === 'uber')!.fee / 100).toFixed(2)}</div>
+                          ) : (
+                            <div className="text-xs text-zinc-400">Get quote</div>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {quotesLoading && (
+                      <p className="text-xs text-zinc-400 mt-2 animate-pulse">Getting delivery quotes…</p>
+                    )}
                   </div>
                 )}
 

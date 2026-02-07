@@ -14,8 +14,12 @@
 import crypto from 'crypto';
 
 const API_BASE = 'https://api.nowpayments.io/v1';
-const API_KEY = process.env.NOWPAYMENTS_API_KEY!;
-const IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET!;
+
+const API_KEY = process.env.NOWPAYMENTS_API_KEY || '';
+const IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET || '';
+
+if (!API_KEY) console.warn('[NOWPayments] NOWPAYMENTS_API_KEY not set — crypto payments will fail');
+if (!IPN_SECRET) console.warn('[NOWPayments] NOWPAYMENTS_IPN_SECRET not set — IPN verification will fail');
 
 // ─── API helpers ────────────────────────────────────────────
 

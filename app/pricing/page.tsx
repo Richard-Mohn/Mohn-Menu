@@ -45,16 +45,20 @@ const PricingCard = ({ title, price, period, description, features, icon: Icon, 
 
     <ul className="space-y-4 mb-12 flex-1 w-full">
       {features.map((feature, i) => {
-        const isComingSoon = feature.includes('(coming soon)');
+        const isRoadmap = feature.includes('(coming soon)');
         const label = feature.replace(' (coming soon)', '');
         return (
-          <li key={i} className="flex items-start gap-3 text-sm font-medium">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${featured ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-500'}`}>
-              <FaCheck className="text-[8px]" />
+          <li key={i} className={`flex items-start gap-3 text-sm font-medium ${isRoadmap ? 'opacity-60' : ''}`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+              isRoadmap
+                ? featured ? 'bg-zinc-700 text-zinc-500' : 'bg-zinc-100 text-zinc-400'
+                : featured ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-500'
+            }`}>
+              {isRoadmap ? <span className="text-[8px]">◆</span> : <FaCheck className="text-[8px]" />}
             </div>
             <span className={featured ? 'text-zinc-300' : 'text-zinc-600'}>
               {label}
-              {isComingSoon && <span className={`ml-1.5 text-[10px] font-black uppercase tracking-wider ${featured ? 'text-zinc-500' : 'text-zinc-400'} bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded`}>Soon</span>}
+              {isRoadmap && <span className={`ml-1.5 text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${featured ? 'text-amber-400/80 bg-amber-400/10' : 'text-amber-600 bg-amber-50'}`}>Roadmap</span>}
             </span>
           </li>
         );

@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { authFetch } from '@/lib/authFetch';
 import { useState, useEffect, useCallback } from 'react';
 import { FaGlobe, FaSearch, FaCheck, FaTimes, FaSpinner, FaCreditCard, FaCog, FaExternalLinkAlt, FaInfoCircle, FaStar, FaTag } from 'react-icons/fa';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 // Competitor prices for comparison (retail .com/yr)
 const COMPETITOR_PRICES = [
@@ -625,15 +626,27 @@ export default function OwnerDomainPage() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-bold text-zinc-500 mb-1">Address Line 1 *</label>
-                    <input
-                      type="text"
+                    <AddressAutocomplete
                       value={purchaseState.contact.address1}
-                      onChange={(e) => setPurchaseState(prev => ({
+                      onChange={(v) => setPurchaseState(prev => ({
                         ...prev,
-                        contact: { ...prev.contact, address1: e.target.value },
+                        contact: { ...prev.contact, address1: v },
                       }))}
-                      className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-black focus:border-black focus:outline-none"
+                      onSelect={(parsed) => setPurchaseState(prev => ({
+                        ...prev,
+                        contact: {
+                          ...prev.contact,
+                          address1: parsed.street,
+                          city: parsed.city,
+                          state: parsed.state,
+                          postalCode: parsed.zipCode,
+                          country: parsed.country,
+                        },
+                      }))}
+                      label="Address Line 1 *"
+                      placeholder="Start typing an address…"
+                      inputClassName="px-3 py-2 border-zinc-200 rounded-lg"
+                      required
                     />
                   </div>
                   <div className="sm:col-span-2">

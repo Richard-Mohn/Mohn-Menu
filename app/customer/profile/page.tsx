@@ -8,6 +8,7 @@ import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaCheck, FaUser } from 'react-icons/fa';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 export default function CustomerProfilePage() {
   const { user, MohnMenuUser, loading, isCustomer } = useAuth();
@@ -118,18 +119,14 @@ export default function CustomerProfilePage() {
                 placeholder="(555) 555-5555"
               />
             </div>
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1.5 ml-1">
-                Delivery Address
-              </label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="w-full px-5 py-3.5 border border-zinc-100 rounded-xl bg-zinc-50 text-black font-bold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all placeholder:text-zinc-300 text-sm"
-                placeholder="123 Main St, City, State"
-              />
-            </div>
+            <AddressAutocomplete
+              value={address}
+              onChange={setAddress}
+              onSelect={(parsed) => setAddress(parsed.formatted)}
+              label="Delivery Address"
+              placeholder="123 Main St, City, State"
+              inputClassName="px-5 py-3.5 border-zinc-100 bg-zinc-50 text-black font-bold placeholder:text-zinc-300"
+            />
           </div>
 
           <button

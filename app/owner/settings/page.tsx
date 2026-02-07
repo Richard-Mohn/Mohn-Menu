@@ -38,6 +38,8 @@ export default function OwnerSettingsPage() {
     uberEatsUrl: currentBusiness?.settings?.thirdPartyDelivery?.uberEatsUrl || '',
     doordashUrl: currentBusiness?.settings?.thirdPartyDelivery?.doordashUrl || '',
     grubhubUrl: currentBusiness?.settings?.thirdPartyDelivery?.grubhubUrl || '',
+    whiteLabel: currentBusiness?.settings?.thirdPartyDelivery?.whiteLabel ?? false,
+    providers: currentBusiness?.settings?.thirdPartyDelivery?.providers || ['doordash', 'uber'],
   });
 
   const [businessInfo, setBusinessInfo] = useState({
@@ -97,6 +99,8 @@ export default function OwnerSettingsPage() {
           },
           thirdPartyDelivery: {
             enabled: thirdPartyDelivery.enabled,
+            whiteLabel: thirdPartyDelivery.whiteLabel,
+            providers: thirdPartyDelivery.providers,
             uberEatsUrl: thirdPartyDelivery.uberEatsUrl || null,
             doordashUrl: thirdPartyDelivery.doordashUrl || null,
             grubhubUrl: thirdPartyDelivery.grubhubUrl || null,
@@ -428,13 +432,13 @@ export default function OwnerSettingsPage() {
           Third-Party Delivery Partners
         </h2>
         <p className="text-xs text-zinc-400">
-          Add your Uber Eats, DoorDash, or Grubhub store links. Customers will see these as alternative ordering options on your website — great as a backup if you don&apos;t have your own drivers yet.
+          Use DoorDash and Uber drivers for delivery — white-labeled under your brand. Customers see delivery options at checkout without being redirected. You can also add store links as a fallback.
         </p>
 
         <label className="flex items-center justify-between cursor-pointer">
           <div>
-            <span className="font-bold text-black text-sm">Enable Third-Party Links</span>
-            <p className="text-xs text-zinc-400">Show delivery partner buttons on your ordering page</p>
+            <span className="font-bold text-black text-sm">Enable Third-Party Delivery</span>
+            <p className="text-xs text-zinc-400">Offer DoorDash / Uber delivery alongside your own drivers</p>
           </div>
           <button
             type="button"
@@ -452,36 +456,93 @@ export default function OwnerSettingsPage() {
         </label>
 
         {thirdPartyDelivery.enabled && (
-          <div className="space-y-4 pt-2">
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 mb-1">🟢 Uber Eats Store URL</label>
-              <input
-                type="url"
-                value={thirdPartyDelivery.uberEatsUrl}
-                onChange={e => setThirdPartyDelivery(p => ({ ...p, uberEatsUrl: e.target.value }))}
-                className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="https://www.ubereats.com/store/your-restaurant/..."
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 mb-1">🔴 DoorDash Store URL</label>
-              <input
-                type="url"
-                value={thirdPartyDelivery.doordashUrl}
-                onChange={e => setThirdPartyDelivery(p => ({ ...p, doordashUrl: e.target.value }))}
-                className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="https://www.doordash.com/store/your-restaurant/..."
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-zinc-500 mb-1">🟠 Grubhub Store URL</label>
-              <input
-                type="url"
-                value={thirdPartyDelivery.grubhubUrl}
-                onChange={e => setThirdPartyDelivery(p => ({ ...p, grubhubUrl: e.target.value }))}
-                className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="https://www.grubhub.com/restaurant/your-restaurant/..."
-              />
+          <div className="space-y-5 pt-2">
+            {/* White-label toggle */}
+            <label className="flex items-center justify-between cursor-pointer bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
+              <div>
+                <span className="font-bold text-black text-sm">⚡ White-Label Delivery API</span>
+                <p className="text-xs text-zinc-500">Use DoorDash Drive & Uber Direct APIs — customers see delivery options at checkout, no redirects. Powered by third-party drivers under your brand.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setThirdPartyDelivery(p => ({ ...p, whiteLabel: !p.whiteLabel }))}
+                className={`w-12 h-7 rounded-full transition-colors relative shrink-0 ml-4 ${
+                  thirdPartyDelivery.whiteLabel ? 'bg-orange-500' : 'bg-zinc-200'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 w-6 h-6 bg-white rounded-full transition-transform shadow-sm ${
+                    thirdPartyDelivery.whiteLabel ? 'translate-x-5.5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </label>
+
+            {thirdPartyDelivery.whiteLabel && (
+              <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-100 space-y-3">
+                <p className="text-xs font-bold text-zinc-600">Active Providers:</p>
+                <div className="flex gap-3">
+                  {(['doordash', 'uber'] as const).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => {
+                        setThirdPartyDelivery(prev => ({
+                          ...prev,
+                          providers: prev.providers.includes(p)
+                            ? prev.providers.filter((x: string) => x !== p)
+                            : [...prev.providers, p],
+                        }));
+                      }}
+                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                        thirdPartyDelivery.providers.includes(p)
+                          ? 'bg-black text-white'
+                          : 'bg-zinc-200 text-zinc-500'
+                      }`}
+                    >
+                      {p === 'doordash' ? '🔴 DoorDash' : '⬛ Uber'}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-zinc-400">
+                  Platform-level API keys configured by MohnMenu. Delivery fees are passed to customers at checkout.
+                </p>
+              </div>
+            )}
+
+            {/* Fallback store links */}
+            <div className="border-t border-zinc-100 pt-4 space-y-4">
+              <p className="text-xs font-bold text-zinc-500">📎 Fallback Store Links (optional)</p>
+              <div>
+                <label className="block text-xs font-bold text-zinc-500 mb-1">🟢 Uber Eats Store URL</label>
+                <input
+                  type="url"
+                  value={thirdPartyDelivery.uberEatsUrl}
+                  onChange={e => setThirdPartyDelivery(p => ({ ...p, uberEatsUrl: e.target.value }))}
+                  className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="https://www.ubereats.com/store/your-restaurant/..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-zinc-500 mb-1">🔴 DoorDash Store URL</label>
+                <input
+                  type="url"
+                  value={thirdPartyDelivery.doordashUrl}
+                  onChange={e => setThirdPartyDelivery(p => ({ ...p, doordashUrl: e.target.value }))}
+                  className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="https://www.doordash.com/store/your-restaurant/..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-zinc-500 mb-1">🟠 Grubhub Store URL</label>
+                <input
+                  type="url"
+                  value={thirdPartyDelivery.grubhubUrl}
+                  onChange={e => setThirdPartyDelivery(p => ({ ...p, grubhubUrl: e.target.value }))}
+                  className="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="https://www.grubhub.com/restaurant/your-restaurant/..."
+                />
+              </div>
             </div>
           </div>
         )}

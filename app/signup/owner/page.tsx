@@ -9,6 +9,7 @@ import type { MohnMenuUser, MohnMenuBusiness, BusinessWebsite } from '@/lib/type
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaArrowRight } from 'react-icons/fa';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 /**
  * Owner Signup Page
@@ -184,30 +185,29 @@ export default function OwnerSignupPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2 ml-1">City</label>
-                <input
-                  type="text"
-                  value={businessCity}
-                  onChange={(e) => setBusinessCity(e.target.value)}
-                  required
-                  className="w-full px-5 py-4 border border-zinc-100 rounded-2xl bg-zinc-50 text-black font-bold focus:outline-none focus:ring-2 focus:ring-black transition-all placeholder:text-zinc-300"
-                  placeholder="Richmond"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2 ml-1">State</label>
-                <input
-                  type="text"
-                  value={businessState}
-                  onChange={(e) => setBusinessState(e.target.value.toUpperCase().slice(0, 2))}
-                  required
-                  maxLength={2}
-                  className="w-full px-5 py-4 border border-zinc-100 rounded-2xl bg-zinc-50 text-black font-bold focus:outline-none focus:ring-2 focus:ring-black transition-all placeholder:text-zinc-300"
-                  placeholder="VA"
-                />
-              </div>
+            <AddressAutocomplete
+              value={businessCity}
+              onChange={setBusinessCity}
+              onSelect={(parsed) => {
+                setBusinessCity(parsed.city);
+                setBusinessState(parsed.state);
+              }}
+              label="City"
+              placeholder="Start typing your city…"
+              inputClassName="px-5 py-4 border-zinc-100 bg-zinc-50 text-black font-bold placeholder:text-zinc-300 rounded-2xl"
+              required
+            />
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2 ml-1">State</label>
+              <input
+                type="text"
+                value={businessState}
+                onChange={(e) => setBusinessState(e.target.value.toUpperCase().slice(0, 2))}
+                required
+                maxLength={2}
+                className="w-full px-5 py-4 border border-zinc-100 rounded-2xl bg-zinc-50 text-black font-bold focus:outline-none focus:ring-2 focus:ring-black transition-all placeholder:text-zinc-300"
+                placeholder="VA"
+              />
             </div>
 
             <div>

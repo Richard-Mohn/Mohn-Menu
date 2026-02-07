@@ -17,6 +17,7 @@ import { getStarterMenu } from '@/data/starterMenus';
 import { db } from '@/lib/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaArrowRight, FaArrowLeft, FaStore, FaUtensils, FaCheck, FaMapMarkerAlt } from 'react-icons/fa';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 import type { MohnMenuBusiness } from '@/lib/types';
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -422,18 +423,20 @@ export default function OnboardingPage() {
                     <p className="text-zinc-400 text-sm">Where is your business located?</p>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2">
-                      Street Address *
-                    </label>
-                    <input
-                      type="text"
-                      value={address}
-                      onChange={e => setAddress(e.target.value)}
-                      className="w-full px-5 py-3.5 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black"
-                      placeholder="123 Main Street"
-                    />
-                  </div>
+                  <AddressAutocomplete
+                    value={address}
+                    onChange={setAddress}
+                    onSelect={(parsed) => {
+                      setAddress(parsed.street);
+                      setCity(parsed.city);
+                      setState(parsed.state);
+                      setZipCode(parsed.zipCode);
+                    }}
+                    label="Street Address *"
+                    placeholder="Start typing your business address…"
+                    inputClassName="border-zinc-200 font-medium"
+                    required
+                  />
 
                   <div className="grid grid-cols-3 gap-3">
                     <div className="col-span-1">
