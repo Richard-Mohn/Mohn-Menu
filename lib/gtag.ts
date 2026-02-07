@@ -1,43 +1,70 @@
-// Google Analytics 4 — helpers
-// Measurement ID lives here so every import shares one source of truth.
-// When you add Facebook Pixel or other trackers, extend this file.
+// Google Tag Manager — single source of truth for all analytics.
+//
+// All events are pushed to the GTM dataLayer. Tags (GA4, Facebook Pixel,
+// TikTok, etc.) are managed inside the GTM container — no code changes
+// needed when you add a new tracking pixel.
+//
+// GA4 Measurement ID is configured inside GTM, NOT in this file.
+// GTM Container ID is the only ID we need in code.
 
-export const GA_MEASUREMENT_ID = 'G-LQC1CSJGP6';
+export const GTM_ID = 'GTM-P4KZDZQP';
+export const GA_MEASUREMENT_ID = 'G-LQC1CSJGP6'; // referenced by gtag helpers below
 
 // ---------------------------------------------------------------------------
-// Typings for the global gtag function
+// Typings
 // ---------------------------------------------------------------------------
 declare global {
   interface Window {
     gtag: (...args: unknown[]) => void;
-    dataLayer: unknown[];
+    dataLayer: Record<string, unknown>[];
   }
 }
 
 // ---------------------------------------------------------------------------
-// Core helpers
+// Low-level helpers
 // ---------------------------------------------------------------------------
 
-/** Send a manual page_view (App Router already fires one on load via gtag config). */
+function push(data: Record<string, unknown>) {
+  if (typeof window === 'undefined') return;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push(data);
+}
+
+// ---------------------------------------------------------------------------
+// Page views (SPA virtual navigations)
+// ---------------------------------------------------------------------------
+
+/** Push a virtual page view for SPA route changes. */
 export function pageview(url: string) {
-  if (typeof window === 'undefined' || !window.gtag) return;
-  window.gtag('config', GA_MEASUREMENT_ID, { page_path: url });
-}
-
-/** Fire an arbitrary GA4 event. */
-export function event(action: string, params: Record<string, unknown> = {}) {
-  if (typeof window === 'undefined' || !window.gtag) return;
-  window.gtag('event', action, params);
-}
-
-/** Identify a logged-in user so GA4 links sessions across devices. */
-export function setUserId(userId: string | null) {
-  if (typeof window === 'undefined' || !window.gtag) return;
-  window.gtag('config', GA_MEASUREMENT_ID, { user_id: userId });
+  push({
+    event: 'page_view',
+    page_path: url,
+  });
 }
 
 // ---------------------------------------------------------------------------
-// GA4 Ecommerce helpers  (maps to Google's recommended events)
+// Custom events  (generic)
+// ---------------------------------------------------------------------------
+
+/** Fire any named event with optional params. */
+export function event(action: string, params: Record<string, unknown> = {}) {
+  push({ event: action, ...params });
+}
+
+// ---------------------------------------------------------------------------
+// User identity
+// ---------------------------------------------------------------------------
+
+/** Set the user_id for cross-device linking (GA4 reads this from dataLayer). */
+export function setUserId(userId: string | null) {
+  push({
+    event: 'set_user_id',
+    user_id: userId,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// GA4 Ecommerce helpers  (dataLayer format)
 // https://developers.google.com/analytics/devguides/collection/ga4/ecommerce
 // ---------------------------------------------------------------------------
 
@@ -51,41 +78,60 @@ export interface GtagItem {
   item_variant?: string;    // options joined
 }
 
+/** Clear previous ecommerce object before pushing a new one (GTM best practice). */
+function clearEcommerce() {
+  push({ ecommerce: null });
+}
+
 /** User views a product / menu item. */
 export function viewItem(item: GtagItem, currency = 'USD') {
-  event('view_item', {
-    currency,
-    value: (item.price ?? 0) * (item.quantity ?? 1),
-    items: [item],
+  clearEcommerce();
+  push({
+    event: 'view_item',
+    ecommerce: {
+      currency,
+      value: (item.price ?? 0) * (item.quantity ?? 1),
+      items: [item],
+    },
   });
 }
 
 /** User adds an item to the cart. */
 export function addToCartEvent(item: GtagItem, currency = 'USD') {
-  event('add_to_cart', {
-    currency,
-    value: (item.price ?? 0) * (item.quantity ?? 1),
-    items: [item],
+  clearEcommerce();
+  push({
+    event: 'add_to_cart',
+    ecommerce: {
+      currency,
+      value: (item.price ?? 0) * (item.quantity ?? 1),
+      items: [item],
+    },
   });
 }
 
 /** User removes an item from the cart. */
 export function removeFromCartEvent(item: GtagItem, currency = 'USD') {
-  event('remove_from_cart', {
-    currency,
-    value: (item.price ?? 0) * (item.quantity ?? 1),
-    items: [item],
+  clearEcommerce();
+  push({
+    event: 'remove_from_cart',
+    ecommerce: {
+      currency,
+      value: (item.price ?? 0) * (item.quantity ?? 1),
+      items: [item],
+    },
   });
 }
 
 /** User views their cart. */
 export function viewCart(items: GtagItem[], value: number, currency = 'USD') {
-  event('view_cart', { currency, value, items });
+  clearEcommerce();
+  push({ event: 'view_cart', ecommerce: { currency, value, items } });
 }
 
 /** User begins checkout. */
 export function beginCheckout(items: GtagItem[], value: number, currency = 'USD') {
-  event('begin_checkout', { currency, value, items });
+  clearEcommerce();
+  push({ event: 'begin_checkout', ecommerce: { currency, value, items } });
 }
 
 /** Checkout completed / payment received. */
@@ -96,12 +142,16 @@ export function purchase(
   currency = 'USD',
   extra: Record<string, unknown> = {},
 ) {
-  event('purchase', {
-    transaction_id: transactionId,
-    currency,
-    value,
-    items,
-    ...extra,
+  clearEcommerce();
+  push({
+    event: 'purchase',
+    ecommerce: {
+      transaction_id: transactionId,
+      currency,
+      value,
+      items,
+      ...extra,
+    },
   });
 }
 
@@ -110,11 +160,11 @@ export function purchase(
 // ---------------------------------------------------------------------------
 
 export function signUpEvent(method: string) {
-  event('sign_up', { method });
+  push({ event: 'sign_up', method });
 }
 
 export function loginEvent(method: string) {
-  event('login', { method });
+  push({ event: 'login', method });
 }
 
 // ---------------------------------------------------------------------------

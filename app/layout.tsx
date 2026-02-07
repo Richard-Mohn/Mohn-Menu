@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { CartProvider } from '@/context/CartContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { AuthModalProvider } from '@/context/AuthModalContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AnimatedBackground from "@/components/AnimatedBackground";
@@ -26,14 +27,16 @@ export default function RootLayout({
       <body className={inter.className}>
         <AnimatedBackground />
         <AuthProvider>
-          <GoogleAnalytics />
-          <CartProvider>
-            <Header />
-            <main>
-              {children}
-            </main>
-            <Footer />
-          </CartProvider>
+          <AuthModalProvider>
+            <GoogleAnalytics />
+            <CartProvider>
+              <Header />
+              <main>
+                {children}
+              </main>
+              <Footer />
+            </CartProvider>
+          </AuthModalProvider>
         </AuthProvider>
       </body>
     </html>

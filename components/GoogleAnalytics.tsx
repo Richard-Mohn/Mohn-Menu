@@ -3,7 +3,7 @@
 import { Suspense, useEffect } from 'react';
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { GA_MEASUREMENT_ID, pageview, setUserId } from '@/lib/gtag';
+import { GTM_ID, pageview, setUserId } from '@/lib/gtag';
 import { useAuth } from '@/context/AuthContext';
 
 /**
@@ -14,13 +14,13 @@ function AnalyticsTracker() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
 
-  // Track page views on route change
+  // Track virtual page views on SPA route changes
   useEffect(() => {
     const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
     pageview(url);
   }, [pathname, searchParams]);
 
-  // Link GA4 sessions to authenticated user
+  // Link sessions to authenticated user
   useEffect(() => {
     setUserId(user?.uid ?? null);
   }, [user]);
@@ -29,30 +29,36 @@ function AnalyticsTracker() {
 }
 
 /**
- * Renders the two <Script> tags for gtag.js and fires a pageview
- * on every client-side navigation.
+ * Google Tag Manager — single container that manages GA4, Facebook Pixel,
+ * and any future tags from one place.
  *
- * Drop this component once inside the root layout — it handles everything.
+ * After deploying, enable Google Tag Gateway in GTM admin so the
+ * container loads from your first-party domain (faster, ad-block resistant).
  */
 export default function GoogleAnalytics() {
   return (
     <>
-      {/* Global site tag (gtag.js) — Google Analytics 4 */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="afterInteractive"
-      />
-      <Script id="gtag-init" strategy="afterInteractive">
+      {/* Google Tag Manager */}
+      <Script id="gtm-init" strategy="afterInteractive">
         {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA_MEASUREMENT_ID}', {
-            page_path: window.location.pathname,
-            send_page_view: true
-          });
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','${GTM_ID}');
         `}
       </Script>
+
+      {/* GTM noscript fallback */}
+      <noscript>
+        <iframe
+          src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+          height="0"
+          width="0"
+          style={{ display: 'none', visibility: 'hidden' }}
+        />
+      </noscript>
+
       <Suspense fallback={null}>
         <AnalyticsTracker />
       </Suspense>

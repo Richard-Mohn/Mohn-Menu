@@ -19,7 +19,7 @@ import {
 } from 'react-icons/fa';
 
 const QuickOrderModal = dynamic(() => import('./QuickOrderModal'), { ssr: false });
-const AuthModal = dynamic(() => import('./AuthModal'), { ssr: false });
+import { useAuthModal } from '@/context/AuthModalContext';
 
 export default function TenantNav({
   business,
@@ -31,23 +31,20 @@ export default function TenantNav({
   orderPath: string;
 }) {
   const { user, logout } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authTab, setAuthTab] = useState<'login' | 'signup'>('signup');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const orderingEnabled = business.settings?.orderingEnabled;
 
   const openSignUp = () => {
-    setAuthTab('signup');
-    setAuthOpen(true);
+    openAuthModal('signup');
     setMobileOpen(false);
   };
 
   const openSignIn = () => {
-    setAuthTab('login');
-    setAuthOpen(true);
+    openAuthModal('login');
     setMobileOpen(false);
   };
 
@@ -246,11 +243,6 @@ export default function TenantNav({
         business={business}
         isOpen={quickOrderOpen}
         onClose={() => setQuickOrderOpen(false)}
-      />
-      <AuthModal
-        isOpen={authOpen}
-        onClose={() => setAuthOpen(false)}
-        defaultTab={authTab}
       />
     </>
   );

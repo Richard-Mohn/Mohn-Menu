@@ -14,7 +14,7 @@ import type { MohnMenuBusiness } from '@/lib/types';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
 
 const QuickOrderModal = dynamic(() => import('./QuickOrderModal'), { ssr: false });
-const AuthModal = dynamic(() => import('./AuthModal'), { ssr: false });
+import { useAuthModal } from '@/context/AuthModalContext';
 
 export default function TenantCTA({
   business,
@@ -24,8 +24,8 @@ export default function TenantCTA({
   menuPath: string;
 }) {
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
 
   return (
     <section className="py-24 px-4 bg-black text-white">
@@ -51,7 +51,7 @@ export default function TenantCTA({
           )}
           {!user ? (
             <button
-              onClick={() => setAuthOpen(true)}
+              onClick={() => openAuthModal('signup')}
               className="inline-flex items-center gap-3 px-10 py-5 border-2 border-zinc-700 text-white rounded-full font-bold text-lg hover:border-white transition-all cursor-pointer"
             >
               <FaUser />
@@ -72,11 +72,6 @@ export default function TenantCTA({
         business={business}
         isOpen={quickOrderOpen}
         onClose={() => setQuickOrderOpen(false)}
-      />
-      <AuthModal
-        isOpen={authOpen}
-        onClose={() => setAuthOpen(false)}
-        defaultTab="signup"
       />
     </section>
   );

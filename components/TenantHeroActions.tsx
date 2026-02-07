@@ -21,7 +21,7 @@ import {
 } from 'react-icons/fa';
 
 const QuickOrderModal = dynamic(() => import('./QuickOrderModal'), { ssr: false });
-const AuthModal = dynamic(() => import('./AuthModal'), { ssr: false });
+import { useAuthModal } from '@/context/AuthModalContext';
 
 export default function TenantHeroActions({
   business,
@@ -33,8 +33,8 @@ export default function TenantHeroActions({
   menuPath: string;
 }) {
   const { user } = useAuth();
+  const { openAuthModal } = useAuthModal();
   const [modalOpen, setModalOpen] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
 
   return (
     <>
@@ -65,7 +65,7 @@ export default function TenantHeroActions({
           </a>
         ) : (
           <button
-            onClick={() => setAuthOpen(true)}
+            onClick={() => openAuthModal('signup')}
             className="px-10 py-5 bg-white text-black border-2 border-zinc-200 rounded-full font-bold text-lg flex items-center gap-3 hover:border-black transition-all cursor-pointer"
           >
             <FaUser className="text-base" />
@@ -110,11 +110,6 @@ export default function TenantHeroActions({
         business={business}
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-      />
-      <AuthModal
-        isOpen={authOpen}
-        onClose={() => setAuthOpen(false)}
-        defaultTab="signup"
       />
     </>
   );

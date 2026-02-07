@@ -11,8 +11,9 @@ import {
   FaGlassCheers, FaCoffee, FaShoppingCart, FaPlay
 } from 'react-icons/fa';
 
+import { useAuthModal } from '@/context/AuthModalContext';
+
 const QuickOrderModal = dynamic(() => import('@/components/QuickOrderModal'), { ssr: false });
-const AuthModal = dynamic(() => import('@/components/AuthModal'), { ssr: false });
 
 /* ─── Reusable Components ─── */
 
@@ -76,7 +77,7 @@ const DEMO_BUSINESS = {
 
 export default function Home() {
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
-  const [authModal, setAuthModal] = useState<{ open: boolean; tab: 'login' | 'signup' }>({ open: false, tab: 'login' });
+  const { openAuthModal } = useAuthModal();
 
   return (
     <div className="min-h-screen bg-white/90 selection:bg-black selection:text-white">
@@ -142,14 +143,14 @@ export default function Home() {
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               <button
-                onClick={() => setAuthModal({ open: true, tab: 'signup' })}
+                onClick={() => openAuthModal('signup')}
                 className="group px-8 py-4 md:px-10 md:py-5 bg-black text-white rounded-full font-bold text-base md:text-lg flex items-center gap-3 hover:bg-zinc-800 transition-all active:scale-95 shadow-2xl shadow-black/20"
               >
                 Launch Your Store
                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
               </button>
               <button
-                onClick={() => setAuthModal({ open: true, tab: 'login' })}
+                onClick={() => openAuthModal('login')}
                 className="px-8 py-4 md:px-10 md:py-5 bg-white text-zinc-900 border-2 border-zinc-200 rounded-full font-bold text-base md:text-lg hover:border-zinc-900 transition-all"
               >
                 Sign In
@@ -607,12 +608,6 @@ export default function Home() {
         onClose={() => setQuickOrderOpen(false)}
       />
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={authModal.open}
-        onClose={() => setAuthModal({ open: false, tab: 'login' })}
-        defaultTab={authModal.tab}
-      />
     </div>
   );
 }
