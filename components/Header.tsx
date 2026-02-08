@@ -10,7 +10,7 @@ import {
   FaSignOutAlt, FaChevronDown, FaBitcoin, FaMapMarkerAlt, FaVideo,
   FaShoppingCart, FaUtensils, FaCoffee, FaDesktop, FaTruck,
   FaClipboardList, FaGlobe, FaBirthdayCake, FaShoppingBasket,
-  FaGlassCheers, FaStore, FaBicycle, FaCalendarAlt
+  FaGlassCheers, FaStore, FaBicycle, FaCalendarAlt, FaUserTie
 } from 'react-icons/fa';
 import { useAuthModal } from '@/context/AuthModalContext';
 
@@ -35,6 +35,7 @@ const featureItems = [
   { href: '/features/white-label-website', icon: FaGlobe, label: 'White-Label Website', desc: 'Branded storefront with SEO built in' },
   { href: '/features/community-delivery', icon: FaBicycle, label: 'Community Courier', desc: 'Hyper-local delivery for $0.25/order' },
   { href: '/features/reservations', icon: FaCalendarAlt, label: 'Table Reservations', desc: 'Book tables — zero per-diner fees' },
+  { href: '/features/staff-marketplace', icon: FaUserTie, label: 'Staff Marketplace', desc: 'Bartender & server multi-venue work' },
 ];
 
 /* ─── Dropdown wrapper ─── */

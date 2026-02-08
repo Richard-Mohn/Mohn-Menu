@@ -8,6 +8,7 @@ import {
   FaStore, FaTruck, FaCheck, FaBoxOpen, FaCashRegister, FaBarcode,
   FaUsers, FaClipboardList, FaClock
 } from 'react-icons/fa';
+import FloatingStoreIcons from '@/components/FloatingStoreIcons';
 
 interface FeatureCardProps { icon: any; title: string; description: string; delay: number; }
 const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps) => (
@@ -36,7 +37,8 @@ const Step = ({ num, title, desc, delay }: StepProps) => (
 
 export default function ForConvenienceStores() {
   return (
-    <div className="min-h-screen bg-white/90">
+    <div className="min-h-screen bg-white/90 relative">
+      <FloatingStoreIcons storeType="convenience" count={16} position="fixed" />
       {/* Hero */}
       <section className="pt-36 pb-20 px-4 relative overflow-hidden">
         <div className="container mx-auto max-w-5xl text-center relative z-10">

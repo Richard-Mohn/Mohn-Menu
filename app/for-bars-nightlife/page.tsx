@@ -5,8 +5,10 @@ import { motion } from "framer-motion";
 import {
   FaGlassCheers, FaArrowRight, FaCreditCard, FaBitcoin, FaMobileAlt,
   FaShieldAlt, FaMusic, FaCalendarAlt, FaUsers, FaClock,
-  FaListAlt, FaPercent, FaConciergeBell, FaStar, FaChair
+  FaListAlt, FaPercent, FaConciergeBell, FaStar, FaChair,
+  FaIdBadge, FaExchangeAlt, FaHeart, FaUserTie
 } from 'react-icons/fa';
+import FloatingStoreIcons from '@/components/FloatingStoreIcons';
 
 interface FeatureCardProps { icon: any; title: string; description: string; delay: number; }
 const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps) => (
@@ -33,7 +35,8 @@ const Step = ({ num, title, desc, delay }: StepProps) => (
 
 export default function ForBarsNightlife() {
   return (
-    <div className="min-h-screen bg-white/90">
+    <div className="min-h-screen bg-white/90 relative">
+      <FloatingStoreIcons storeType="bar" count={16} position="fixed" />
       <section className="pt-36 pb-20 px-4 relative overflow-hidden">
         <div className="container mx-auto max-w-5xl text-center relative z-10">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
@@ -94,6 +97,41 @@ export default function ForBarsNightlife() {
           <div className="text-center mt-10">
             <Link href="/features/reservations" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-full font-bold text-lg hover:shadow-xl hover:shadow-purple-500/20 transition-all">
               Learn About Reservations <FaArrowRight />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Staff Marketplace */}
+      <section className="py-24 px-4 bg-gradient-to-b from-white to-purple-50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <span className="text-purple-600 font-black uppercase tracking-widest text-xs mb-3 block">Staff Marketplace</span>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Your bartenders &amp; servers, <span className="text-purple-600">everywhere.</span></h2>
+            <p className="text-xl text-zinc-500 max-w-2xl mx-auto">Let staff work across multiple venues, build their reputation, and let customers follow their favorites.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {[
+              { icon: FaIdBadge, title: 'Staff Profiles', desc: 'Bartenders & servers build verified profiles with ratings, specialties, and certifications.' },
+              { icon: FaUserTie, title: 'Multi-Venue Work', desc: 'Staff pick up shifts at any participating bar or restaurant — one profile, many venues.' },
+              { icon: FaHeart, title: 'Follow Favorites', desc: 'Customers follow their favorite bartender and get notified when they\'re working.' },
+              { icon: FaExchangeAlt, title: 'Shift Swapping', desc: 'Staff swap shifts with qualified peers if the owner allows — same cuisine, same standards.' },
+            ].map((f, i) => (
+              <div key={i} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all border border-purple-100 hover:border-purple-300 text-center">
+                <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <f.icon className="text-purple-600 text-2xl" />
+                </div>
+                <h3 className="font-bold text-lg mb-2">{f.title}</h3>
+                <p className="text-sm text-zinc-500">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/features/staff-marketplace" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-full font-bold text-lg hover:shadow-xl hover:shadow-purple-500/20 transition-all">
+              Explore Staff Marketplace <FaArrowRight />
+            </Link>
+            <Link href="/signup/bartender" className="inline-flex items-center gap-2 px-8 py-4 border-2 border-purple-300 text-purple-700 rounded-full font-bold text-lg hover:bg-purple-50 transition-all">
+              Join as Staff <FaArrowRight />
             </Link>
           </div>
         </div>

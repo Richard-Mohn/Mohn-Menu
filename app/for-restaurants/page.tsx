@@ -7,6 +7,7 @@ import {
   FaArrowRight, FaCheck, FaVideo, FaMapMarkerAlt, FaBitcoin, FaGoogle,
   FaShieldAlt, FaBrain, FaMobileAlt, FaQrcode, FaBolt
 } from 'react-icons/fa';
+import FloatingStoreIcons from '@/components/FloatingStoreIcons';
 
 /* ─── Feature card ─── */
 interface FeatureCardProps { icon: any; title: string; description: string; delay: number; }
@@ -37,7 +38,8 @@ const Step = ({ num, title, desc, delay }: StepProps) => (
 
 export default function ForRestaurants() {
   return (
-    <div className="min-h-screen bg-white/90">
+    <div className="min-h-screen bg-white/90 relative">
+      <FloatingStoreIcons storeType="restaurant" count={16} position="fixed" />
       {/* Hero */}
       <section className="pt-36 pb-20 px-4 relative overflow-hidden">
         <div className="container mx-auto max-w-5xl text-center relative z-10">

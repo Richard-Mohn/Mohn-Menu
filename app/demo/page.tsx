@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaArrowRight, FaPlay, FaShoppingCart } from 'react-icons/fa';
+import FloatingStoreIcons from '@/components/FloatingStoreIcons';
 
 const DEMO_STORES = [
   {
@@ -47,13 +48,13 @@ const DEMO_STORES = [
   },
   {
     type: 'Bar & Grill',
-    slug: '',
+    slug: 'demo/bars',
     name: 'The Copper Tap',
     emoji: '🍺',
     color: 'from-purple-500 to-violet-500',
-    description: 'Table ordering, drink specials, happy hour menus.',
+    description: 'Table ordering, reservations, VIP service, crypto payments, and happy hour menus.',
     pageName: 'Drink Menu',
-    live: false,
+    live: true,
   },
   {
     type: 'Grocery Store',
@@ -101,8 +102,9 @@ export default function DemoPage() {
   return (
     <div className="min-h-screen bg-white/90">
       {/* Hero */}
-      <section className="pt-36 pb-16 px-4">
-        <div className="container mx-auto max-w-5xl text-center">
+      <section className="pt-36 pb-16 px-4 relative overflow-hidden">
+        <FloatingStoreIcons storeType="default" count={16} position="absolute" />
+        <div className="container mx-auto max-w-5xl text-center relative z-10">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
             className="inline-block px-4 py-1.5 mb-6 rounded-full bg-orange-50 border border-orange-100 text-xs font-black uppercase tracking-widest text-orange-600"
           >Live Demos</motion.div>
@@ -182,14 +184,16 @@ export default function DemoPage() {
                           href={`/${store.slug}`}
                           className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-900 text-white rounded-full font-bold text-sm hover:bg-black transition-colors"
                         >
-                          <FaPlay className="text-[10px]" /> View Storefront
+                          <FaPlay className="text-[10px]" /> {store.slug.startsWith('demo/') ? 'View Demo' : 'View Storefront'}
                         </Link>
-                        <Link
-                          href={`/order/${store.slug}`}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-bold text-sm hover:shadow-lg hover:shadow-orange-500/20 transition-all"
-                        >
-                          <FaShoppingCart className="text-[10px]" /> Order Page
-                        </Link>
+                        {!store.slug.startsWith('demo/') && (
+                          <Link
+                            href={`/order/${store.slug}`}
+                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-bold text-sm hover:shadow-lg hover:shadow-orange-500/20 transition-all"
+                          >
+                            <FaShoppingCart className="text-[10px]" /> Order Page
+                          </Link>
+                        )}
                       </div>
                     ) : (
                       <div className="py-3 bg-zinc-100 text-zinc-400 rounded-full font-bold text-sm text-center cursor-not-allowed">
