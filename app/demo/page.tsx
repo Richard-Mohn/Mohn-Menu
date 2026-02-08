@@ -48,11 +48,11 @@ const DEMO_STORES = [
   },
   {
     type: 'Bar & Grill',
-    slug: 'demo/bars',
+    slug: 'the-copper-tap',
     name: 'The Copper Tap',
     emoji: '🍺',
     color: 'from-purple-500 to-violet-500',
-    description: 'Table ordering, reservations, VIP service, crypto payments, and happy hour menus.',
+    description: 'Full tenant website, cocktail menu, reservations, jukebox & karaoke, kiosk mode, crypto payments.',
     pageName: 'Drink Menu',
     live: true,
   },

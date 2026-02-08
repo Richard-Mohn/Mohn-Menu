@@ -10,7 +10,7 @@ import {
   FaChartLine, FaGlobe, FaMapMarkerAlt, FaMusic, FaBell,
   FaCheck, FaPlay, FaChevronRight, FaWifi, FaVideo,
   FaDollarSign, FaHeart, FaBolt, FaGem,
-  FaIdBadge, FaExchangeAlt
+  FaIdBadge, FaExchangeAlt, FaShoppingCart
 } from 'react-icons/fa';
 
 /* ─── Animated stat counter ─── */
@@ -109,16 +109,35 @@ export default function BarsDemoPage() {
               </motion.p>
 
               <motion.div
-                className="flex flex-wrap gap-3 mb-10"
+                className="flex flex-wrap gap-3 mb-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
-                <Link href="/register" className="group px-8 py-4 bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-full font-bold text-lg flex items-center gap-3 hover:shadow-xl hover:shadow-purple-500/30 transition-all">
-                  Start Free <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                <Link href="/the-copper-tap" className="group px-8 py-4 bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-full font-bold text-lg flex items-center gap-3 hover:shadow-xl hover:shadow-purple-500/30 transition-all">
+                  <FaPlay className="text-sm" /> View Live Website
                 </Link>
-                <Link href="/for-bars-nightlife" className="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-full font-bold text-lg hover:bg-white/10 transition-all backdrop-blur-sm">
-                  Learn More
+                <Link href="/order/the-copper-tap" className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full font-bold text-lg flex items-center gap-3 hover:shadow-xl hover:shadow-amber-500/30 transition-all">
+                  <FaShoppingCart className="text-sm" /> Try Ordering
+                </Link>
+              </motion.div>
+              <motion.div
+                className="flex flex-wrap gap-2 mb-10"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <Link href="/the-copper-tap/reserve" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-full font-bold text-sm hover:bg-white/10 transition-all">
+                  📅 Reservations
+                </Link>
+                <Link href="/the-copper-tap/jukebox" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-full font-bold text-sm hover:bg-white/10 transition-all">
+                  🎵 Jukebox
+                </Link>
+                <Link href="/the-copper-tap/kiosk" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-full font-bold text-sm hover:bg-white/10 transition-all">
+                  📱 Kiosk Mode
+                </Link>
+                <Link href="/for-bars-nightlife" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white rounded-full font-bold text-sm hover:bg-white/10 transition-all">
+                  Learn More →
                 </Link>
               </motion.div>
 
@@ -780,6 +799,50 @@ export default function BarsDemoPage() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          DEMO ACCOUNTS
+         ═══════════════════════════════════════════════════════════ */}
+      <section className="py-20 px-4 bg-zinc-950">
+        <div className="container mx-auto max-w-5xl">
+          <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-purple-400 mb-4 block">Try Every Role</span>
+            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">Demo Login Accounts</h2>
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">Log in as an owner, bartender, driver, or customer to explore every part of the platform. See exactly what each role sees.</p>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {[
+              { role: 'Owner / Admin', email: 'owner@coppertap.demo', icon: '👔', desc: 'Full dashboard, menu management, analytics, floor plan, entertainment controls, staff management.', color: 'from-purple-500 to-violet-600' },
+              { role: 'Bartender', email: 'bartender@coppertap.demo', icon: '🍸', desc: 'View orders, manage tabs, see kitchen display, handle reservations.', color: 'from-blue-500 to-cyan-500' },
+              { role: 'Server', email: 'server@coppertap.demo', icon: '🍽️', desc: 'Table assignments, order management, tips tracking.', color: 'from-green-500 to-emerald-500' },
+              { role: 'Driver', email: 'driver@coppertap.demo', icon: '🚗', desc: 'Delivery queue, GPS navigation, order status updates.', color: 'from-amber-500 to-orange-500' },
+              { role: 'Customer', email: 'customer@coppertap.demo', icon: '🧑', desc: 'Browse menu, place orders, track delivery, view rewards.', color: 'from-pink-500 to-rose-500' },
+            ].map((acct, i) => (
+              <motion.div key={acct.role} className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 hover:border-purple-500/30 transition-all" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-10 h-10 bg-gradient-to-br ${acct.color} rounded-xl flex items-center justify-center text-lg`}>{acct.icon}</div>
+                  <div>
+                    <h4 className="font-bold text-white text-sm">{acct.role}</h4>
+                    <p className="text-xs text-zinc-500 font-mono">{acct.email}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed">{acct.desc}</p>
+              </motion.div>
+            ))}
+            <motion.div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 flex flex-col items-center justify-center text-center" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.25 }}>
+              <div className="text-2xl mb-2">🔑</div>
+              <p className="text-sm font-bold text-white mb-1">All Accounts</p>
+              <p className="text-xs text-zinc-400 mb-3">Same password for every demo role</p>
+              <code className="px-4 py-2 bg-zinc-800 rounded-lg text-purple-400 text-sm font-mono font-bold">DemoPass123!</code>
+            </motion.div>
+          </div>
+          <div className="text-center">
+            <Link href="/the-copper-tap" className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-full font-bold text-lg hover:shadow-xl hover:shadow-purple-500/30 transition-all">
+              <FaPlay className="text-sm" /> Open The Copper Tap Demo <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
       </section>
