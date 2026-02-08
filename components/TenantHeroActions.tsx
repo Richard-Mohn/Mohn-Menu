@@ -18,10 +18,15 @@ import { useAuth } from '@/context/AuthContext';
 import type { MohnMenuBusiness } from '@/lib/types';
 import {
   FaShoppingCart, FaUser, FaStar, FaReceipt, FaArrowRight,
+  FaCalendarAlt, FaMusic,
 } from 'react-icons/fa';
 
 const QuickOrderModal = dynamic(() => import('./QuickOrderModal'), { ssr: false });
 import { useAuthModal } from '@/context/AuthModalContext';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+const BAR_TYPES = ['bar_grill', 'restaurant', 'chinese_restaurant'];
 
 export default function TenantHeroActions({
   business,
@@ -35,6 +40,11 @@ export default function TenantHeroActions({
   const { user } = useAuth();
   const { openAuthModal } = useAuthModal();
   const [modalOpen, setModalOpen] = useState(false);
+
+  const isBarType = BAR_TYPES.includes(business.type);
+  const hasReservations = (business as any).features?.reservations || (business as any).reservationSettings?.enabled;
+  const hasEntertainment = (business as any).entertainment?.jukeboxEnabled;
+  const slug = business.slug;
 
   return (
     <>
@@ -73,6 +83,30 @@ export default function TenantHeroActions({
           </button>
         )}
       </div>
+
+      {/* ── Feature buttons (Reserve, Jukebox) ────────── */}
+      {(hasReservations || hasEntertainment) && (
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
+          {hasReservations && (
+            <a
+              href={`/${slug}/reserve`}
+              className="px-8 py-4 bg-purple-600 text-white rounded-full font-bold text-base flex items-center gap-2 hover:bg-purple-500 transition-all shadow-lg shadow-purple-600/20"
+            >
+              <FaCalendarAlt className="text-sm" />
+              Reserve a Table
+            </a>
+          )}
+          {hasEntertainment && (
+            <a
+              href={`/${slug}/jukebox`}
+              className="px-8 py-4 bg-zinc-900 text-white rounded-full font-bold text-base flex items-center gap-2 hover:bg-zinc-700 transition-all"
+            >
+              <FaMusic className="text-sm" />
+              Jukebox
+            </a>
+          )}
+        </div>
+      )}
 
       {/* ── Secondary links ─────────────────────────────── */}
       <div className="flex items-center justify-center gap-6 text-sm">

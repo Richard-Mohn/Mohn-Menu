@@ -15,8 +15,11 @@ import type { MohnMenuBusiness } from '@/lib/types';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   FaBars, FaTimes, FaShoppingCart, FaUser, FaSignOutAlt,
-  FaReceipt, FaStar, FaChevronDown,
+  FaReceipt, FaStar, FaChevronDown, FaCalendarAlt, FaMusic,
 } from 'react-icons/fa';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const BAR_TYPES = ['bar_grill', 'restaurant', 'chinese_restaurant'];
 
 const QuickOrderModal = dynamic(() => import('./QuickOrderModal'), { ssr: false });
 import { useAuthModal } from '@/context/AuthModalContext';
@@ -37,6 +40,9 @@ export default function TenantNav({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const orderingEnabled = business.settings?.orderingEnabled;
+  const isBarType = BAR_TYPES.includes(business.type);
+  const hasReservations = (business as any).features?.reservations || (business as any).reservationSettings?.enabled;
+  const hasEntertainment = (business as any).entertainment?.jukeboxEnabled;
 
   const openSignUp = () => {
     openAuthModal('signup');
@@ -74,6 +80,16 @@ export default function TenantNav({
               <span className="text-sm font-bold text-zinc-600 hover:text-black transition-colors cursor-pointer">
                 Services
               </span>
+            )}
+            {hasReservations && (
+              <a href={`${basePath}/reserve`} className="text-sm font-bold text-zinc-600 hover:text-black transition-colors flex items-center gap-1">
+                <FaCalendarAlt className="text-xs text-purple-500" /> Reserve
+              </a>
+            )}
+            {hasEntertainment && (
+              <a href={`${basePath}/jukebox`} className="text-sm font-bold text-zinc-600 hover:text-black transition-colors flex items-center gap-1">
+                <FaMusic className="text-xs text-purple-500" /> Jukebox
+              </a>
             )}
             <a href={`${basePath}/about`} className="text-sm font-bold text-zinc-600 hover:text-black transition-colors">
               About
@@ -184,6 +200,12 @@ export default function TenantNav({
               <div className="px-4 py-4 space-y-1">
                 <a href={`${basePath}/`} className="block py-3 text-sm font-bold text-zinc-700 hover:text-black">Home</a>
                 <a href={`${basePath}/menu`} className="block py-3 text-sm font-bold text-zinc-700 hover:text-black">Menu</a>
+                {hasReservations && (
+                  <a href={`${basePath}/reserve`} className="block py-3 text-sm font-bold text-zinc-700 hover:text-black">📅 Reservations</a>
+                )}
+                {hasEntertainment && (
+                  <a href={`${basePath}/jukebox`} className="block py-3 text-sm font-bold text-zinc-700 hover:text-black">🎵 Jukebox</a>
+                )}
                 <a href={`${basePath}/about`} className="block py-3 text-sm font-bold text-zinc-700 hover:text-black">About</a>
                 <a href={`${basePath}/contact`} className="block py-3 text-sm font-bold text-zinc-700 hover:text-black">Contact</a>
                 <a href={orderPath} className="block py-3 text-sm font-bold text-zinc-700 hover:text-black">Full Menu & Order</a>
